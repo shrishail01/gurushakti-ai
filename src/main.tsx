@@ -1,18 +1,32 @@
-import '@vly-ai/integrations';
+import "@vly-ai/integrations";
 import { Toaster } from "@/components/ui/sonner";
 import { RequireAuth } from "@/components/RequireAuth";
+import { AppShell } from "@/components/AppShell";
 import { VlyToolbar } from "../vly-toolbar-readonly.tsx";
-import { ConvexAuthProvider } from "@convex-dev/auth/react";
-import { ConvexReactClient } from "convex/react";
+import { AuthProvider } from "@/lib/auth-context";
+import { LanguageProvider } from "@/lib/language";
 import React, { StrictMode, useEffect, lazy, Suspense } from "react";
 import { createRoot } from "react-dom/client";
-import { BrowserRouter, Route, Routes, useLocation } from "react-router";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router";
 import "./index.css";
 
 // Lazy load route components for better code splitting
 const Landing = lazy(() => import("./pages/Landing.tsx"));
 const AuthPage = lazy(() => import("./pages/Auth.tsx"));
+const Onboarding = lazy(() => import("./pages/Onboarding.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
+const Toolkit = lazy(() => import("./pages/Toolkit.tsx"));
+const ToolGenerator = lazy(() => import("./pages/ToolGenerator.tsx"));
+const Documents = lazy(() => import("./pages/Documents.tsx"));
+const DocumentDetail = lazy(() => import("./pages/DocumentDetail.tsx"));
+const Income = lazy(() => import("./pages/Income.tsx"));
+const Mission = lazy(() => import("./pages/Mission.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
@@ -80,10 +94,6 @@ class RootErrorBoundary extends React.Component<
   }
 }
 
-const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
-
-
-
 function RouteSyncer() {
   const location = useLocation();
   useEffect(() => {
@@ -107,37 +117,109 @@ function RouteSyncer() {
   return null;
 }
 
-
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <RootErrorBoundary>
       <ToolbarErrorBoundary>
         <VlyToolbar />
       </ToolbarErrorBoundary>
-      <ConvexAuthProvider client={convex}>
-        <BrowserRouter>
-          <RouteSyncer />
-          <Suspense fallback={<RouteLoading />}>
-            <Routes>
-              <Route path="/" element={<Landing />} />
-              <Route
-                path="/auth"
-                element={<AuthPage redirectAfterAuth="/dashboard" />}
-              />
-              <Route
-                path="/dashboard"
-                element={
-                  <RequireAuth>
-                    <Dashboard />
-                  </RequireAuth>
-                }
-              />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </BrowserRouter>
-        <Toaster />
-      </ConvexAuthProvider>
+      <AuthProvider>
+        <LanguageProvider>
+          <BrowserRouter>
+            <RouteSyncer />
+            <Suspense fallback={<RouteLoading />}>
+              <Routes>
+                <Route path="/" element={<Landing />} />
+                <Route
+                  path="/login"
+                  element={<AuthPage redirectAfterAuth="/dashboard" />}
+                />
+                <Route path="/auth" element={<Navigate to="/login" replace />} />
+                <Route
+                  path="/onboarding"
+                  element={
+                    <RequireAuth>
+                      <Onboarding />
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/dashboard"
+                  element={
+                    <RequireAuth>
+                      <AppShell>
+                        <Dashboard />
+                      </AppShell>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/toolkit"
+                  element={
+                    <RequireAuth>
+                      <AppShell>
+                        <Toolkit />
+                      </AppShell>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/toolkit/:toolId"
+                  element={
+                    <RequireAuth>
+                      <AppShell>
+                        <ToolGenerator />
+                      </AppShell>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/documents"
+                  element={
+                    <RequireAuth>
+                      <AppShell>
+                        <Documents />
+                      </AppShell>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/documents/:docId"
+                  element={
+                    <RequireAuth>
+                      <AppShell>
+                        <DocumentDetail />
+                      </AppShell>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/income"
+                  element={
+                    <RequireAuth>
+                      <AppShell>
+                        <Income />
+                      </AppShell>
+                    </RequireAuth>
+                  }
+                />
+                <Route
+                  path="/mission"
+                  element={
+                    <RequireAuth>
+                      <AppShell>
+                        <Mission />
+                      </AppShell>
+                    </RequireAuth>
+                  }
+                />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Suspense>
+          </BrowserRouter>
+        </LanguageProvider>
+      </AuthProvider>
+      <Toaster />
     </RootErrorBoundary>
   </StrictMode>,
 );

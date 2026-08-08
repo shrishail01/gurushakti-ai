@@ -1,0 +1,77 @@
+import {
+  BarChart3,
+  Briefcase,
+  CalendarClock,
+  ClipboardList,
+  DraftingCompass,
+  Eye,
+  FileCheck2,
+  FileQuestion,
+  FileSpreadsheet,
+  FileText,
+  FlaskConical,
+  GraduationCap,
+  HelpCircle,
+  IdCard,
+  Languages,
+  Layers,
+  Lightbulb,
+  Mail,
+  Megaphone,
+  MessageCircle,
+  Mic,
+  Microscope,
+  NotebookPen,
+  Presentation,
+  School,
+  Target,
+  UserCheck,
+  Users,
+  Wrench,
+  type LucideIcon,
+} from "lucide-react";
+
+/** tool.icon key → Lucide component */
+export const TOOL_ICONS: Record<string, LucideIcon> = {
+  NotebookPen,
+  CalendarClock,
+  Microscope,
+  ClipboardList,
+  FileSpreadsheet,
+  Presentation,
+  Lightbulb,
+  Users,
+  FileQuestion,
+  DraftingCompass,
+  ListChecks: Target,
+  Layers,
+  HelpCircle,
+  Eye,
+  Briefcase,
+  FlaskConical,
+  BarChart3,
+  MessagesSquare: MessageCircle,
+  Megaphone,
+  FileText,
+  Mic,
+  Languages,
+  FileCheck2,
+  IdCard,
+  Mail,
+  UserCheck,
+  School,
+};
+
+export function toolIcon(key: string): LucideIcon {
+  return TOOL_ICONS[key] ?? FileText;
+}
+
+/** Category icon for toolkit filter chips / cards */
+export const CATEGORY_ICONS: Record<string, LucideIcon> = {
+  teaching: GraduationCap,
+  assessment: Target,
+  reports: FileText,
+  communication: MessageCircle,
+  utility: Wrench,
+  career: Briefcase,
+};

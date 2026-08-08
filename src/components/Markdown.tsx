@@ -1,0 +1,38 @@
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import { cn } from "@/lib/utils";
+
+/**
+ * Safe Markdown renderer for AI output.
+ *
+ * react-markdown does not render raw HTML by default (it is escaped), so the
+ * AI's Markdown — headings, lists, tables — renders styled while raw HTML is
+ * inert. Styling lives in the `.md` class in index.css.
+ */
+
+interface MarkdownProps {
+  content: string;
+  className?: string;
+}
+
+export function Markdown({ content, className }: MarkdownProps) {
+  return (
+    <div className={cn("md", className)}>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          a: ({ node: _node, ...props }) => (
+            <a {...props} target="_blank" rel="noopener noreferrer" />
+          ),
+          table: ({ node: _node, ...props }) => (
+            <div className="md-table-wrap">
+              <table {...props} />
+            </div>
+          ),
+        }}
+      >
+        {content}
+      </ReactMarkdown>
+    </div>
+  );
+}

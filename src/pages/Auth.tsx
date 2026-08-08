@@ -1,24 +1,14 @@
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import {
-  InputOTP,
-  InputOTPGroup,
-  InputOTPSlot,
-} from "@/components/ui/input-otp";
-
+import { motion } from "framer-motion";
+import { ArrowLeft, ArrowRight, Loader2, Lock, Mail, User } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router";
+import { GuruShaktiLogo } from "@/components/GuruShaktiLogo";
 import { useAuth } from "@/hooks/use-auth";
-import logo from "@/assets/logo.svg";
-import { ArrowRight, Loader2, Mail, UserX } from "lucide-react";
-import { Suspense, useEffect, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router";
+import { useLanguage } from "@/lib/language";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 
 interface AuthProps {
   redirectAfterAuth?: string;
@@ -34,271 +24,220 @@ function resolveRedirectAfterAuth(
   return fallback;
 }
 
-function Auth({ redirectAfterAuth }: AuthProps = {}) {
-  const { isLoading: authLoading, isAuthenticated, signIn } = useAuth();
+export default function Auth({ redirectAfterAuth }: AuthProps = {}) {
+  const { isLoading: authLoading, isAuthenticated, signIn, register } =
+    useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirect = resolveRedirectAfterAuth(
     searchParams.get("returnTo"),
     redirectAfterAuth,
   );
-  const [step, setStep] = useState<"signIn" | { email: string }>("signIn");
-  const [otp, setOtp] = useState("");
+
+  const [mode, setMode] = useState<"signin" | "signup">("signin");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      navigate(redirect);
+      navigate(redirect, { replace: true });
     }
   }, [authLoading, isAuthenticated, navigate, redirect]);
-  const handleEmailSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIsLoading(true);
     setError(null);
+
+    if (mode === "signup" && name.trim().length < 2) {
+      setError("Please enter your full name.");
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    setIsLoading(true);
     try {
-      const formData = new FormData(event.currentTarget);
-      await signIn("email-otp", formData);
-      setStep({ email: formData.get("email") as string });
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Email sign-in error:", error);
+      if (mode === "signup") {
+        await register(name.trim(), email.trim(), password);
+      } else {
+        await signIn(email.trim(), password);
+      }
+      navigate(redirect, { replace: true });
+    } catch (err) {
       setError(
-        error instanceof Error
-          ? error.message
-          : "Failed to send verification code. Please try again.",
+        err instanceof Error ? err.message : "Something went wrong. Please try again.",
       );
       setIsLoading(false);
     }
   };
 
-  const handleOtpSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setIsLoading(true);
-    setError(null);
-    try {
-      const formData = new FormData(event.currentTarget);
-      await signIn("email-otp", formData);
-
-      console.log("signed in");
-
-      navigate(redirect);
-    } catch (error) {
-      console.error("OTP verification error:", error);
-
-      setError("The verification code you entered is incorrect.");
-      setIsLoading(false);
-
-      setOtp("");
-    }
-  };
-
-  const handleGuestLogin = async () => {
-    setIsLoading(true);
-    setError(null);
-    try {
-      console.log("Attempting anonymous sign in...");
-      await signIn("anonymous");
-      console.log("Anonymous sign in successful");
-      navigate(redirect);
-    } catch (error) {
-      console.error("Guest login error:", error);
-      console.error("Error details:", JSON.stringify(error, null, 2));
-      setError(`Failed to sign in as guest: ${error instanceof Error ? error.message : 'Unknown error'}`);
-      setIsLoading(false);
-    }
-  };
-
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-4">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-24 -right-24 size-96 rounded-full bg-teal-400/15 blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -bottom-24 -left-24 size-96 rounded-full bg-orange-300/15 blur-3xl"
+      />
 
-      
-      {/* Auth Content */}
-      <div className="flex-1 flex items-center justify-center">
-        <div className="flex items-center justify-center h-full flex-col">
-        <Card className="min-w-[350px] pb-0 border shadow-md">
-          {step === "signIn" ? (
-            <>
-              <CardHeader className="text-center">
-              <div className="flex justify-center">
-                    <img
-                      src={logo}
-                      alt="Lock Icon"
-                      width={64}
-                      height={64}
-                      className="rounded-lg mb-4 mt-4 cursor-pointer"
-                      onClick={() => navigate("/")}
-                    />
-                  </div>
-                <CardTitle className="text-xl">Get Started</CardTitle>
-                <CardDescription>
-                  Enter your email to log in or sign up
-                </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleEmailSubmit}>
-                <CardContent>
-                  
-                  <div className="relative flex items-center gap-2">
-                    <div className="relative flex-1">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        name="email"
-                        placeholder="name@example.com"
-                        type="email"
-                        className="pl-9"
-                        disabled={isLoading}
-                        required
-                      />
-                    </div>
-                    <Button
-                      type="submit"
-                      variant="outline"
-                      size="icon"
-                      disabled={isLoading}
-                    >
-                      {isLoading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <ArrowRight className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                  {error && (
-                    <p className="mt-2 text-sm text-red-500">{error}</p>
-                  )}
-                  
-                  <div className="mt-4">
-                    <div className="relative">
-                      <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t" />
-                      </div>
-                      <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-background px-2 text-muted-foreground">
-                          Or
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="w-full mt-4"
-                      onClick={handleGuestLogin}
-                      disabled={isLoading}
-                    >
-                      <UserX className="mr-2 h-4 w-4" />
-                      Continue as Guest
-                    </Button>
-                  </div>
-                </CardContent>
-              </form>
-            </>
-          ) : (
-            <>
-              <CardHeader className="text-center mt-4">
-                <CardTitle>Check your email</CardTitle>
-                <CardDescription>
-                  We've sent a code to {step.email}
-                </CardDescription>
-              </CardHeader>
-              <form onSubmit={handleOtpSubmit}>
-                <CardContent className="pb-4">
-                  <input type="hidden" name="email" value={step.email} />
-                  <input type="hidden" name="code" value={otp} />
+      <Link
+        to="/"
+        className="absolute top-5 left-5 flex items-center gap-1.5 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+      >
+        <ArrowLeft className="size-4" />
+        {t("common.backToLanding")}
+      </Link>
 
-                  <div className="flex justify-center">
-                    <InputOTP
-                      value={otp}
-                      onChange={setOtp}
-                      maxLength={6}
-                      disabled={isLoading}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" && otp.length === 6 && !isLoading) {
-                          // Find the closest form and submit it
-                          const form = (e.target as HTMLElement).closest("form");
-                          if (form) {
-                            form.requestSubmit();
-                          }
-                        }
-                      }}
-                    >
-                      <InputOTPGroup>
-                        {Array.from({ length: 6 }).map((_, index) => (
-                          <InputOTPSlot key={index} index={index} />
-                        ))}
-                      </InputOTPGroup>
-                    </InputOTP>
-                  </div>
-                  {error && (
-                    <p className="mt-2 text-sm text-red-500 text-center">
-                      {error}
-                    </p>
-                  )}
-                  <p className="text-sm text-muted-foreground text-center mt-4">
-                    Didn't receive a code?{" "}
-                    <Button
-                      variant="link"
-                      className="p-0 h-auto"
-                      onClick={() => setStep("signIn")}
-                    >
-                      Try again
-                    </Button>
-                  </p>
-                </CardContent>
-                <CardFooter className="flex-col gap-2">
-                  <Button
-                    type="submit"
-                    className="w-full"
-                    disabled={isLoading || otp.length !== 6}
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Verifying...
-                      </>
-                    ) : (
-                      <>
-                        Verify code
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </>
-                    )}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    onClick={() => setStep("signIn")}
-                    disabled={isLoading}
-                    className="w-full"
-                  >
-                    Use different email
-                  </Button>
-                </CardFooter>
-              </form>
-            </>
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+        className="glass soft-shadow w-full max-w-md rounded-3xl p-8"
+      >
+        <div className="mb-6 flex justify-center">
+          <GuruShaktiLogo iconSize={52} wordmarkClassName="h-7" />
+        </div>
+
+        <div className="mb-6 grid grid-cols-2 gap-1 rounded-xl border border-border/70 bg-muted/60 p-1">
+          {(["signin", "signup"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => {
+                setMode(m);
+                setError(null);
+              }}
+              className={cn(
+                "rounded-lg py-2 text-sm font-semibold transition-all cursor-pointer",
+                mode === m
+                  ? "bg-card shadow-sm text-teal-800"
+                  : "text-muted-foreground hover:text-foreground",
+              )}
+            >
+              {m === "signin" ? t("common.signIn") : t("common.signUp")}
+            </button>
+          ))}
+        </div>
+
+        <div className="mb-6">
+          <h1 className="text-2xl font-extrabold tracking-tight">
+            {mode === "signin"
+              ? t("auth.signInTitle")
+              : t("auth.createTitle")}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {mode === "signin"
+              ? t("auth.signInSubtitle")
+              : t("auth.createSubtitle")}
+          </p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {mode === "signup" && (
+            <div className="space-y-1.5">
+              <Label htmlFor="name">{t("auth.name")}</Label>
+              <div className="relative">
+                <User className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="name"
+                  className="pl-9"
+                  placeholder={t("auth.namePlaceholder")}
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  disabled={isLoading}
+                  autoComplete="name"
+                />
+              </div>
+            </div>
+          )}
+          <div className="space-y-1.5">
+            <Label htmlFor="email">{t("auth.email")}</Label>
+            <div className="relative">
+              <Mail className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="email"
+                type="email"
+                className="pl-9"
+                placeholder={t("auth.emailPlaceholder")}
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
+                autoComplete="email"
+                required
+              />
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="password">{t("auth.password")}</Label>
+            <div className="relative">
+              <Lock className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                id="password"
+                type="password"
+                className="pl-9"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
+                autoComplete={mode === "signup" ? "new-password" : "current-password"}
+                required
+              />
+            </div>
+          </div>
+
+          {error && (
+            <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+              {error}
+            </div>
           )}
 
-          <div className="py-4 px-6 text-xs text-center text-muted-foreground bg-muted border-t rounded-b-lg">
-            Secured by{" "}
-            <a
-              href="https://freebuff.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline hover:text-primary transition-colors"
-            >
-              freebuff.com
-            </a>
-          </div>
-        </Card>
-        </div>
-      </div>
-    </div>
-  );
-}
+          <Button
+            type="submit"
+            className="w-full cursor-pointer bg-brand-gradient text-white hover:opacity-90"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="size-4 animate-spin" />
+                {mode === "signup" ? t("auth.createTitle") : t("common.signIn")}…
+              </>
+            ) : (
+              <>
+                {mode === "signup" ? t("common.signUp") : t("common.signIn")}
+                <ArrowRight className="size-4" />
+              </>
+            )}
+          </Button>
+        </form>
 
-export default function AuthPage(props: AuthProps) {
-  return (
-    <Suspense>
-      <Auth {...props} />
-    </Suspense>
+        <button
+          type="button"
+          className="mt-5 w-full cursor-pointer text-center text-sm font-medium text-teal-800 hover:underline"
+          onClick={() => {
+            setMode(mode === "signin" ? "signup" : "signin");
+            setError(null);
+          }}
+        >
+          {mode === "signin" ? t("auth.noAccount") : t("auth.haveAccount")}
+        </button>
+      </motion.div>
+
+      <p className="mt-6 text-center text-xs text-muted-foreground">
+        Passwords are hashed and stored securely · Sessions use HTTP-only
+        cookies
+      </p>
+    </div>
   );
 }

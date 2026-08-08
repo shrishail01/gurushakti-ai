@@ -1,20 +1,9 @@
-import { api } from "@/convex/_generated/api";
-import { useAuthActions } from "@convex-dev/auth/react";
-import { useConvexAuth, useQuery } from "convex/react";
+/**
+ * Auth hook — returns the signed-in user and auth actions.
+ *
+ * This replaces the template's Convex Auth hook with the GuruShakti custom
+ * JWT + HttpOnly-cookie session. The shape stays compatible:
+ *   const { isLoading, isAuthenticated, user, signIn, signOut } = useAuth();
+ */
 
-export function useAuth() {
-  const { isLoading: isAuthLoading, isAuthenticated } = useConvexAuth();
-  const user = useQuery(api.users.currentUser);
-  const { signIn, signOut } = useAuthActions();
-
-  // Derive isLoading directly from the dependencies instead of managing separate state
-  const isLoading = isAuthLoading || user === undefined;
-
-  return {
-    isLoading,
-    isAuthenticated,
-    user,
-    signIn,
-    signOut,
-  };
-}
+export { useAuth } from "@/lib/auth-context";

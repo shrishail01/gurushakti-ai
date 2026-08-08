@@ -39,7 +39,7 @@ export interface ToolField {
   options?: ToolOption[];
   help?: string;
   /** Pre-fill from the user profile when present. */
-  fromProfile?: "subjects" | "district" | "teachingLevel" | "role";
+  fromProfile?: "subjects" | "district" | "teachingLevel" | "role" | "skills";
 }
 
 export interface ToolDef {
