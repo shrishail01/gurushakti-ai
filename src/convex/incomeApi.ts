@@ -66,7 +66,7 @@ async function incomeFromGemini(user: UserDoc): Promise<IncomeOpportunity[]> {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       contents: [{ role: "user", parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.7, maxOutputTokens: 4096 },
+      generationConfig: { temperature: 0.7, maxOutputTokens: 16000 },
     }),
     signal: AbortSignal.timeout(90_000),
   });
