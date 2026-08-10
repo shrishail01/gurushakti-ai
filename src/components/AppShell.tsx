@@ -248,7 +248,7 @@ function MobileDrawer({
             className="fixed inset-y-0 left-0 z-50 flex w-64 flex-col gap-2 border-r bg-card/95 p-4 backdrop-blur"
           >
             <div className="flex items-center justify-between">
-              <GuruShaktiLogo iconSize={36} wordmarkClassName="h-8" />
+              <GuruShaktiLogo iconSize={36} wordmarkClassName="h-9" />
               <Button
                 variant="ghost"
                 size="icon"
@@ -330,7 +330,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           onClick={() => navigate("/dashboard")}
           aria-label="Go to dashboard"
         >
-          <GuruShaktiLogo iconSize={36} wordmarkClassName="h-7 sm:h-8" />
+          <GuruShaktiLogo iconSize={36} wordmarkClassName="h-8 sm:h-9" />
         </button>
         <div className="ml-auto flex items-center gap-1.5">
           <LanguageSwitcher />

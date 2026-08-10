@@ -42,7 +42,7 @@ export function GuruShaktiLogo({
           src="/assets/gurushakti-wordmark.png"
           alt="GuruShakti AI"
           className={cn(
-            "h-6 w-auto shrink-0 object-contain sm:h-7",
+            "h-7 w-auto shrink-0 object-contain sm:h-8",
             wordmarkClassName,
           )}
           draggable={false}
