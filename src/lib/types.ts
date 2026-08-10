@@ -21,8 +21,8 @@ export interface UserProfile {
   teachingLevel?: string;
   digitalSkillLevel?: string;
   devicesAvailable?: string[];
-  freeHoursPerWeek?: number;
-  teachingExperienceYears?: number;
+  freeHoursPerWeek?: number | string;
+  teachingExperienceYears?: number | string;
   skills?: string[];
   incomeGoal?: string;
   careerGoal?: string;

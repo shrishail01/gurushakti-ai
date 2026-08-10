@@ -9,6 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
@@ -40,6 +47,60 @@ const DEVICE_OPTIONS = [
   { value: "Tablet", label: "Tablet", labelKn: "ಟ್ಯಾಬ್ಲೆಟ್" },
   { value: "Desktop", label: "Desktop", labelKn: "ಡೆಸ್ಕ್ಟಾಪ್" },
   { value: "No device", label: "No device", labelKn: "ಸಾಧನ ಇಲ್ಲ" },
+];
+
+const KARNATAKA_DISTRICTS = [
+  "Bagalkot",
+  "Ballari",
+  "Belagavi",
+  "Bengaluru Rural",
+  "Bengaluru Urban",
+  "Bidar",
+  "Chamarajanagar",
+  "Chikkaballapur",
+  "Chikkamagaluru",
+  "Chitradurga",
+  "Dakshina Kannada",
+  "Davanagere",
+  "Dharwad",
+  "Gadag",
+  "Hassan",
+  "Haveri",
+  "Kalaburagi",
+  "Kodagu",
+  "Kolar",
+  "Koppal",
+  "Mandya",
+  "Mysuru",
+  "Raichur",
+  "Ramanagara",
+  "Shivamogga",
+  "Tumakuru",
+  "Udupi",
+  "Uttara Kannada",
+  "Vijayapura",
+  "Yadgir",
+];
+
+const YEARS_EXPERIENCE_OPTIONS = [
+  "No experience",
+  "Less than 1 year",
+  "1–5 years",
+  "6–10 years",
+  "11–15 years",
+  "16–20 years",
+  "21–25 years",
+  "26–30 years",
+  "30+ years",
+];
+
+const FREE_HOURS_OPTIONS = [
+  "Less than 5 hours",
+  "5–10 hours",
+  "11–15 hours",
+  "16–20 hours",
+  "21–30 hours",
+  "30+ hours",
 ];
 
 const SKILL_OPTIONS = [
@@ -120,14 +181,6 @@ export default function Onboarding() {
     }
     if (stepIndex === 1) {
       if (!form.district.trim()) next.district = t("onboarding.required");
-      const years = Number(form.teachingExperienceYears);
-      if (form.teachingExperienceYears !== "" && (isNaN(years) || years < 0 || years > 60)) {
-        next.teachingExperienceYears = t("onboarding.required");
-      }
-      const hours = Number(form.freeHoursPerWeek);
-      if (form.freeHoursPerWeek !== "" && (isNaN(hours) || hours < 0 || hours > 168)) {
-        next.freeHoursPerWeek = t("onboarding.required");
-      }
     }
     if (stepIndex === 2) {
       if (!form.digitalSkillLevel) next.digitalSkillLevel = t("onboarding.required");
@@ -157,12 +210,8 @@ export default function Onboarding() {
           .map((s) => s.trim())
           .filter(Boolean),
         district: form.district.trim(),
-        teachingExperienceYears: form.teachingExperienceYears
-          ? Number(form.teachingExperienceYears)
-          : undefined,
-        freeHoursPerWeek: form.freeHoursPerWeek
-          ? Number(form.freeHoursPerWeek)
-          : undefined,
+        teachingExperienceYears: form.teachingExperienceYears || undefined,
+        freeHoursPerWeek: form.freeHoursPerWeek || undefined,
         preferredLanguage: form.preferredLanguage,
         digitalSkillLevel: form.digitalSkillLevel,
         devicesAvailable: form.devices,
@@ -296,12 +345,18 @@ export default function Onboarding() {
                     <Label htmlFor="district" className="mb-2 block">
                       {t("onboarding.district")}
                     </Label>
-                    <Input
-                      id="district"
-                      value={form.district}
-                      onChange={(e) => set("district", e.target.value)}
-                      placeholder={t("onboarding.districtPlaceholder")}
-                    />
+                    <Select value={form.district} onValueChange={(v) => set("district", v)}>
+                      <SelectTrigger id="district" className="w-full">
+                        <SelectValue placeholder={t("onboarding.selectDistrict")} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {KARNATAKA_DISTRICTS.map((district) => (
+                          <SelectItem key={district} value={district}>
+                            {district}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                     {fieldError("district")}
                   </div>
                   <div className="grid grid-cols-2 gap-4">
@@ -309,28 +364,42 @@ export default function Onboarding() {
                       <Label htmlFor="years" className="mb-2 block">
                         {t("onboarding.yearsExperience")}
                       </Label>
-                      <Input
-                        id="years"
-                        type="number"
-                        min={0}
-                        max={60}
+                      <Select
                         value={form.teachingExperienceYears}
-                        onChange={(e) => set("teachingExperienceYears", e.target.value)}
-                      />
+                        onValueChange={(v) => set("teachingExperienceYears", v)}
+                      >
+                        <SelectTrigger id="years" className="w-full">
+                          <SelectValue placeholder={t("onboarding.selectYears")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {YEARS_EXPERIENCE_OPTIONS.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       {fieldError("teachingExperienceYears")}
                     </div>
                     <div>
                       <Label htmlFor="hours" className="mb-2 block">
                         {t("onboarding.freeHours")}
                       </Label>
-                      <Input
-                        id="hours"
-                        type="number"
-                        min={0}
-                        max={168}
+                      <Select
                         value={form.freeHoursPerWeek}
-                        onChange={(e) => set("freeHoursPerWeek", e.target.value)}
-                      />
+                        onValueChange={(v) => set("freeHoursPerWeek", v)}
+                      >
+                        <SelectTrigger id="hours" className="w-full">
+                          <SelectValue placeholder={t("onboarding.selectFreeHours")} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {FREE_HOURS_OPTIONS.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       {fieldError("freeHoursPerWeek")}
                     </div>
                   </div>

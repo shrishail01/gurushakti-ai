@@ -530,10 +530,10 @@ export default function Landing() {
         <div className="mx-auto flex w-full max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 md:flex-row md:px-8">
           <GuruShaktiLogo iconSize={30} wordmarkClassName="h-5" />
           <p className="text-xs text-muted-foreground">
-            Made with ❤️ for Karnataka&apos;s teachers · English &amp; ಕನ್ನಡ
+            Made with 💗 for Karnataka&apos;s teachers · English &amp; ಕನ್ನಡ
           </p>
           <p className="text-xs text-muted-foreground">
-            Powered by Google Gemini
+            Powered by Aibility
           </p>
         </div>
       </footer>

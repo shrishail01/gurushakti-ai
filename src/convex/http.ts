@@ -221,9 +221,9 @@ async function runGeneration(
           ],
         },
         contents: [{ role: "user", parts: [{ text: opts.prompt }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 4096 },
+        generationConfig: { temperature: 0.7, maxOutputTokens: 16000 },
       }),
-      signal: AbortSignal.timeout(100_000),
+      signal: AbortSignal.timeout(240_000),
     });
 
     if (!res.ok) {
