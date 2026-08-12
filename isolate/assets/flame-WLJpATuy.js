@@ -1,1 +1,0 @@
-import{c}from"./index-BIxZyoIS.js";const o=[["path",{d:"M12 6v6h4",key:"135r8i"}],["circle",{cx:"12",cy:"12",r:"10",key:"1mglay"}]],t=c("clock-3",o);const e=[["path",{d:"M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4",key:"1slcih"}]],s=c("flame",e);export{t as C,s as F};
