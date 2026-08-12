@@ -11,6 +11,7 @@ import type {
   DocumentsResponse,
   IncomeResponse,
   OutputLanguage,
+  QuestionPapersResponse,
   UserProfile,
 } from "./types";
 
@@ -220,4 +221,23 @@ export const api = {
 
   income: () =>
     request<IncomeResponse>("/income", { method: "POST", body: "{}" }),
+
+  listQuestionPapers: (params: {
+    q?: string;
+    subject?: string;
+    semester?: string;
+    year?: string;
+    university?: string;
+  } = {}) => {
+    const sp = new URLSearchParams();
+    if (params.q) sp.set("q", params.q);
+    if (params.subject) sp.set("subject", params.subject);
+    if (params.semester) sp.set("semester", params.semester);
+    if (params.year) sp.set("year", params.year);
+    if (params.university) sp.set("university", params.university);
+    const qs = sp.toString();
+    return request<QuestionPapersResponse>(
+      `/question-papers${qs ? `?${qs}` : ""}`,
+    );
+  },
 };

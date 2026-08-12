@@ -472,6 +472,28 @@ export const deleteDocument = httpAction(async (ctx, request) => {
 });
 
 /* ------------------------------------------------------------------ */
+/* B.Ed Question Papers                                                */
+/* ------------------------------------------------------------------ */
+
+export const listQuestionPapers = httpAction(async (ctx, request) => {
+  if (request.method === "OPTIONS") return optionsHandler(request);
+  try {
+    const auth = await requireAuth(ctx, request);
+    const url = new URL(request.url);
+    const result = await ctx.runAction(internal.questionPapersApi.listQuestionPapers, {
+      q: (url.searchParams.get("q") ?? "").trim().slice(0, 100),
+      subject: (url.searchParams.get("subject") ?? "").trim().slice(0, 100),
+      semester: (url.searchParams.get("semester") ?? "").trim().slice(0, 20),
+      year: (url.searchParams.get("year") ?? "").trim().slice(0, 10),
+      university: (url.searchParams.get("university") ?? "").trim().slice(0, 120),
+    });
+    return jsonResponse(request, result);
+  } catch (error) {
+    return errorResponse(request, error);
+  }
+});
+
+/* ------------------------------------------------------------------ */
 /* Route registration                                                  */
 /* ------------------------------------------------------------------ */
 
@@ -497,6 +519,7 @@ const apiRoutes: ApiRoute[] = [
   { pathPrefix: "/api/documents/", method: "GET", handler: getDocument },
   { pathPrefix: "/api/documents/", method: "PATCH", handler: favoriteDocument },
   { pathPrefix: "/api/documents/", method: "DELETE", handler: deleteDocument },
+  { path: "/api/question-papers", method: "GET", handler: listQuestionPapers },
 ];
 
 const registeredOptions = new Set<string>();

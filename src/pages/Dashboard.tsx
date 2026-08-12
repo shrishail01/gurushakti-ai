@@ -6,7 +6,6 @@ import {
   Flame,
   FolderOpen,
   IndianRupee,
-  Rocket,
   Star,
   Wand2,
 } from "lucide-react";
@@ -25,9 +24,9 @@ const QUICK_TOOL_IDS = [
   "lesson-plan",
   "question-paper",
   "worksheet",
-  "parent-message",
   "quiz-generator",
-  "resume-builder",
+  "daily-teaching-plan",
+  "school-notice",
 ];
 
 function formatMinutes(min: number): string {
@@ -258,64 +257,34 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Mission + Income */}
-      <div className="grid gap-4 lg:grid-cols-2">
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-          className="flex flex-col gap-4 rounded-2xl border border-teal-200/70 bg-gradient-to-br from-teal-50 to-emerald-50 p-6"
-        >
-          <div className="flex items-center gap-3">
-            <div className="flex size-11 items-center justify-center rounded-xl bg-brand-gradient text-white">
-              <Rocket className="size-5" />
-            </div>
-            <div>
-              <h3 className="font-bold tracking-tight">
-                {t("dashboard.missionControl")}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                {t("dashboard.missionCta")}
-              </p>
-            </div>
+      {/* Income Engine */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+        className="flex flex-col gap-4 rounded-2xl border border-orange-200/70 bg-gradient-to-br from-orange-50 to-amber-50 p-6"
+      >
+        <div className="flex items-center gap-3">
+          <div className="flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white">
+            <IndianRupee className="size-5" />
           </div>
-          <Button
-            className="mt-auto w-fit cursor-pointer bg-brand-gradient text-white hover:opacity-90"
-            onClick={() => navigate("/mission")}
-          >
-            {t("nav.mission")}
-            <ArrowRight className="size-4" />
-          </Button>
-        </motion.div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.28 }}
-          className="flex flex-col gap-4 rounded-2xl border border-orange-200/70 bg-gradient-to-br from-orange-50 to-amber-50 p-6"
-        >
-          <div className="flex items-center gap-3">
-            <div className="flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-amber-500 text-white">
-              <IndianRupee className="size-5" />
-            </div>
-            <div>
-              <h3 className="font-bold tracking-tight">
-                {t("dashboard.incomeEngine")}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                {t("dashboard.incomeCta")}
-              </p>
-            </div>
+          <div>
+            <h3 className="font-bold tracking-tight">
+              {t("dashboard.incomeEngine")}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {t("dashboard.incomeCta")}
+            </p>
           </div>
-          <Button
-            className="mt-auto w-fit cursor-pointer bg-gradient-to-br from-orange-500 to-amber-500 text-white hover:opacity-90"
-            onClick={() => navigate("/income")}
-          >
-            {t("nav.income")}
-            <ArrowRight className="size-4" />
-          </Button>
-        </motion.div>
-      </div>
+        </div>
+        <Button
+          className="mt-auto w-fit cursor-pointer bg-gradient-to-br from-orange-500 to-amber-500 text-white hover:opacity-90"
+          onClick={() => navigate("/income")}
+        >
+          {t("nav.income")}
+          <ArrowRight className="size-4" />
+        </Button>
+      </motion.div>
     </div>
   );
 }

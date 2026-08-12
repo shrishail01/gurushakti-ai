@@ -55,6 +55,31 @@ export interface DocumentsResponse {
   pages: number;
 }
 
+/** Mirrors the MongoDB `questionPapers` collection document (API shape). */
+export interface QuestionPaper {
+  _id: string;
+  title: string;
+  subject: string;
+  semester: string;
+  year: string;
+  university: string;
+  description?: string;
+  fileUrl?: string;
+  verified: boolean;
+  createdAt: number;
+}
+
+export interface QuestionPapersResponse {
+  items: QuestionPaper[];
+  total: number;
+  filters: {
+    subjects: string[];
+    semesters: string[];
+    years: string[];
+    universities: string[];
+  };
+}
+
 export interface ApiErrorBody {
   error?: string;
 }

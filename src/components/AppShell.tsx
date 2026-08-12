@@ -3,11 +3,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import {
   ChevronDown,
   FolderOpen,
+  GraduationCap,
   Languages,
   LayoutDashboard,
   LogOut,
   Menu,
-  Rocket,
   TrendingUp,
   Wand2,
   X,
@@ -37,13 +37,13 @@ import { cn } from "@/lib/utils";
 const NAV_ITEMS: {
   to: string;
   icon: LucideIcon;
-  key: "nav.dashboard" | "nav.toolkit" | "nav.income" | "nav.documents" | "nav.mission";
+  key: "nav.dashboard" | "nav.toolkit" | "nav.income" | "nav.documents" | "nav.papers";
 }[] = [
   { to: "/dashboard", icon: LayoutDashboard, key: "nav.dashboard" },
   { to: "/toolkit", icon: Wand2, key: "nav.toolkit" },
   { to: "/income", icon: TrendingUp, key: "nav.income" },
   { to: "/documents", icon: FolderOpen, key: "nav.documents" },
-  { to: "/mission", icon: Rocket, key: "nav.mission" },
+  { to: "/papers", icon: GraduationCap, key: "nav.papers" },
 ];
 
 function initials(name?: string): string {
@@ -127,9 +127,9 @@ function UserMenu() {
           <LayoutDashboard className="size-4" />
           {t("nav.dashboard")}
         </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/mission")}>
-          <Rocket className="size-4" />
-          {t("nav.mission")}
+        <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/papers")}>
+          <GraduationCap className="size-4" />
+          {t("nav.papers")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem

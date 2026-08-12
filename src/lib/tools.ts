@@ -1,5 +1,5 @@
 /**
- * GuruShakti AI — 27 AI Toolkit tools.
+ * GuruShakti AI — AI Toolkit tools.
  *
  * This file is intentionally dependency-free (no React, no lucide) so it can
  * be imported from BOTH the frontend (to render the dynamic tool generator)
@@ -15,10 +15,8 @@ import type { OutputLanguage, ProfileContext } from "./types";
 export type ToolCategory =
   | "teaching"
   | "assessment"
-  | "reports"
   | "communication"
-  | "utility"
-  | "career";
+  | "utility";
 
 export type ToolFieldType = "text" | "textarea" | "select" | "number";
 
@@ -65,10 +63,8 @@ export const CATEGORIES: {
 }[] = [
   { id: "teaching", label: "Teaching", labelKn: "ಬೋಧನೆ" },
   { id: "assessment", label: "Assessment", labelKn: "ಮೌಲ್ಯಮಾಪನ" },
-  { id: "reports", label: "Reports", labelKn: "ವರದಿಗಳು" },
   { id: "communication", label: "Communication", labelKn: "ಸಂವಹನ" },
   { id: "utility", label: "Utility", labelKn: "ಉಪಯುಕ್ತತೆ" },
-  { id: "career", label: "Career", labelKn: "ವೃತ್ತಿ" },
 ];
 
 /* ------------------------------------------------------------------ */
@@ -251,12 +247,12 @@ export const TOOLS: ToolDef[] = [
     id: "ppt-outline",
     category: "teaching",
     icon: "Presentation",
-    title: "PPT Outline",
-    titleKn: "ಪಿಪಿಟಿ ರೂಪರೇಖೆ",
+    title: "PPT Presentation",
+    titleKn: "ಪಿಪಿಟಿ ಪ್ರಸ್ತುತಿ",
     description:
-      "A slide-by-slide outline for a classroom presentation.",
+      "A complete classroom presentation you can download as a real .pptx file.",
     descriptionKn:
-      "ತರಗತಿ ಪ್ರಸ್ತುತಿಗಾಗಿ ಸ್ಲೈಡ್-ಮೂಲಕ-ಸ್ಲೈಡ್ ರೂಪರೇಖೆ.",
+      "ನಿಜವಾದ .pptx ಫೈಲ್ ಆಗಿ ಡೌನ್ಲೋಡ್ ಮಾಡಬಹುದಾದ ಸಂಪೂರ್ಣ ತರಗತಿ ಪ್ರಸ್ತುತಿ.",
     fields: [
       f({ name: "topic", label: "Topic", labelKn: "ವಿಷಯ", type: "text", required: true, placeholder: "e.g. Photosynthesis", placeholderKn: "ಉದಾ: ದ್ಯುತಿಸಂಶ್ಲೇಷಣೆ" }),
       f({ name: "subject", label: "Subject", labelKn: "ವಿಷಯ", type: "text", required: true, fromProfile: "subjects", placeholder: "e.g. Biology", placeholderKn: "ಉದಾ: ಜೀವಶಾಸ್ತ್ರ" }),
@@ -276,8 +272,8 @@ export const TOOLS: ToolDef[] = [
       ] }),
     ],
     prompt:
-      "Create a slide-by-slide PPT outline on {{topic}} for {{subject}} ({{gradeLevel}}) for an audience of {{audience}}. Provide exactly {{numSlides}} slides. For each slide give: the slide title, 3–6 bullet points (concise, presentation-ready), and a suggested visual or image idea. Add speaker notes (2–3 sentences) for the first and last slides. Follow a logical flow: title, hook/objective, concepts, examples, activity, summary, Q&A.",
-    titleTemplate: "{topic} — PPT Outline",
+      "Create the FULL content of a {{numSlides}}-slide classroom presentation on {{topic}} for {{subject}} ({{gradeLevel}}) for an audience of {{audience}}. This will be converted into a real PowerPoint (.pptx) file, so write complete, ready-to-show slide content — NOT an outline and NOT notes about slides. STRICT FORMAT — each slide must start on its own line with a '## ' heading exactly like this: '## Slide 1: <Slide title>' followed only by 3–6 concise bullet points ('- ' lines) that are complete sentences the teacher can show as-is. Rules: Slide 1 is the title slide (title: '{{topic}}', then bullets like the subject, grade and a one-line subtitle). Slide 2 sets the hook/learning objective. Middle slides explain key concepts with one idea per bullet, plus at least one slide of real examples and one classroom activity slide. The final slide is the summary with 3 takeaway points and a 'Thank you!' line. No blank lines inside a slide; use a blank line only between slides. Follow a logical flow: title, hook/objective, concepts, examples, activity, summary.",
+    titleTemplate: "{topic} — PPT",
   },
   {
     id: "teaching-aid",
@@ -479,124 +475,8 @@ export const TOOLS: ToolDef[] = [
     titleTemplate: "{topic} — Quiz",
   },
 
-  /* ------------------------------ REPORTS ------------------------- */
-  {
-    id: "observation-report",
-    category: "reports",
-    icon: "Eye",
-    title: "Observation Report",
-    titleKn: "ವೀಕ್ಷಣಾ ವರದಿ",
-    description:
-      "A structured report for observing a trainee teacher's lesson.",
-    descriptionKn:
-      "ತರಬೇತಿ ಶಿಕ್ಷಕರ ಪಾಠ ವೀಕ್ಷಣೆಗಾಗಿ ರಚನಾತ್ಮಕ ವರದಿ.",
-    fields: [
-      f({ name: "traineeName", label: "Trainee teacher name", labelKn: "ತರಬೇತಿ ಶಿಕ್ಷಕರ ಹೆಸರು", type: "text", required: true, placeholder: "e.g. Ramesh Kumar" }),
-      f({ name: "subject", label: "Subject / class taught", labelKn: "ಬೋಧಿಸಿದ ವಿಷಯ / ತರಗತಿ", type: "text", required: true, fromProfile: "subjects", placeholder: "e.g. Science, Class 8", placeholderKn: "ಉದಾ: ವಿಜ್ಞಾನ, ೮ನೇ ತರಗತಿ" }),
-      f({ name: "lessonTopic", label: "Lesson topic", labelKn: "ಪಾಠದ ವಿಷಯ", type: "text", required: true, placeholder: "e.g. Metals and non-metals", placeholderKn: "ಉದಾ: ಲೋಹಗಳು" }),
-      f({ name: "date", label: "Date of observation", labelKn: "ವೀಕ್ಷಣಾ ದಿನಾಂಕ", type: "text", required: true, placeholder: "e.g. 15 Aug 2026", placeholderKn: "ಉದಾ: ೧೫ ಆಗಸ್ಟ್ ೨೦೨೬" }),
-      f({ name: "focusArea", label: "Focus area", labelKn: "ಗಮನದ ಕ್ಷೇತ್ರ", type: "select", required: true, options: [
-        { value: "Overall lesson", label: "Overall lesson", labelKn: "ಸಂಪೂರ್ಣ ಪಾಠ" },
-        { value: "Lesson structure", label: "Lesson structure", labelKn: "ಪಾಠ ರಚನೆ" },
-        { value: "Student interaction", label: "Student interaction", labelKn: "ವಿದ್ಯಾರ್ಥಿ ಸಂವಹನ" },
-        { value: "Classroom management", label: "Classroom management", labelKn: "ತರಗತಿ ನಿರ್ವಹಣೆ" },
-        { value: "Questioning technique", label: "Questioning technique", labelKn: "ಪ್ರಶ್ನಿಸುವ ತಂತ್ರ" },
-      ] }),
-    ],
-    prompt:
-      "Write a professional observation report for trainee teacher {{traineeName}}, who taught {{lessonTopic}} ({{subject}}) on {{date}}. Focus area: {{focusArea}}. Structure: 1) Header (observer, trainee, date, period), 2) Lesson summary (2-3 sentences), 3) Strengths observed (bullet points with specific examples), 4) Areas for improvement (constructive, specific), 5) Suggested strategies for the trainee, 6) Overall rating (Good / Satisfactory / Needs Improvement) with justification, 7) Observer signature lines. Keep the tone supportive and professional.",
-    titleTemplate: "Observation Report — {traineeName}",
-  },
-  {
-    id: "internship-report",
-    category: "reports",
-    icon: "Briefcase",
-    title: "Internship Report",
-    titleKn: "ಇಂಟರ್ನ್ಶಿಪ್ ವರದಿ",
-    description:
-      "A complete teaching internship report for college submission.",
-    descriptionKn:
-      "ಕಾಲೇಜು ಸಲ್ಲಿಕೆಗಾಗಿ ಸಂಪೂರ್ಣ ಬೋಧನಾ ಇಂಟರ್ನ್ಶಿಪ್ ವರದಿ.",
-    fields: [
-      f({ name: "name", label: "Your name", labelKn: "ನಿಮ್ಮ ಹೆಸರು", type: "text", required: true, fromProfile: "role", placeholder: "e.g. Priya S" }),
-      f({ name: "college", label: "College / University", labelKn: "ಕಾಲೇಜು / ವಿಶ್ವವಿದ್ಯಾಲಯ", type: "text", required: true, placeholder: "e.g. Vijaya Teachers College" }),
-      f({ name: "schoolName", label: "Practicing school", labelKn: "ಅಭ್ಯಾಸ ಶಾಲೆ", type: "text", required: true, placeholder: "e.g. Govt High School, Shimoga" }),
-      f({ name: "duration", label: "Internship duration", labelKn: "ಇಂಟರ್ನ್ಶಿಪ್ ಅವಧಿ", type: "text", required: true, placeholder: "e.g. 6 weeks (June – July 2026)" }),
-      f({ name: "subjectsTaught", label: "Subjects taught", labelKn: "ಬೋಧಿಸಿದ ವಿಷಯಗಳು", type: "text", required: true, fromProfile: "subjects", placeholder: "e.g. Maths and Science, Classes 6-8", placeholderKn: "ಉದಾ: ಗಣಿತ ಮತ್ತು ವಿಜ್ಞಾನ" }),
-    ],
-    prompt:
-      "Write a complete teaching internship report for {{name}} of {{college}}, completed at {{schoolName}} over {{duration}}, teaching {{subjectsTaught}}. Include sections: 1) Title page details (institution, school, name, dates), 2) Introduction & objectives of the internship, 3) Profile of the practicing school (structure, facilities), 4) Description of teaching practice (lessons planned, methods used, aids), 5) Co-curricular activities participated in, 6) Observations about students and classroom dynamics, 7) Challenges faced and how they were handled, 8) Skills developed (map to B.Ed. competencies), 9) Reflection & conclusion, 10) Acknowledgements. Professional, reflective tone, ready for submission.",
-    titleTemplate: "Internship Report — {name}",
-  },
-  {
-    id: "action-research",
-    category: "reports",
-    icon: "FlaskConical",
-    title: "Action Research",
-    titleKn: "ಕ್ರಿಯಾ ಸಂಶೋಧನೆ",
-    description:
-      "A structured action research report to solve a classroom problem.",
-    descriptionKn:
-      "ತರಗತಿಯ ಸಮಸ್ಯೆ ಪರಿಹಾರಕ್ಕಾಗಿ ರಚನಾತ್ಮಕ ಕ್ರಿಯಾ ಸಂಶೋಧನಾ ವರದಿ.",
-    fields: [
-      f({ name: "problem", label: "Classroom problem", labelKn: "ತರಗತಿಯ ಸಮಸ್ಯೆ", type: "textarea", required: true, placeholder: "e.g. Students struggle to read English words fluently", placeholderKn: "ಉದಾ: ವಿದ್ಯಾರ್ಥಿಗಳು ಇಂಗ್ಲಿಷ್ ಓದಲು ಕಷ್ಟಪಡುತ್ತಾರೆ" }),
-      f({ name: "context", label: "Context / class", labelKn: "ಸಂದರ್ಭ / ತರಗತಿ", type: "text", required: true, placeholder: "e.g. Class 5, 40 students", placeholderKn: "ಉದಾ: ೫ನೇ ತರಗತಿ, ೪೦ ವಿದ್ಯಾರ್ಥಿಗಳು" }),
-      f({ name: "intervention", label: "Proposed intervention", labelKn: "ಪ್ರಸ್ತಾವಿತ ಪರಿಹಾರ", type: "textarea", required: true, placeholder: "e.g. Daily 15-min phonics games for 6 weeks", placeholderKn: "ಉದಾ: ೬ ವಾರಗಳ ಕಾಲ ದೈನಂದಿನ ೧೫ ನಿಮಿಷ ಧ್ವನಿವಿಜ್ಞಾನ ಆಟಗಳು" }),
-      f({ name: "duration", label: "Research duration", labelKn: "ಸಂಶೋಧನಾ ಅವಧಿ", type: "text", required: true, placeholder: "e.g. 6 weeks" }),
-    ],
-    prompt:
-      "Write a complete action research report addressing the problem: '{{problem}}' in {{context}}. Proposed intervention: {{intervention}}, over {{duration}}. Structure: 1) Title & researcher details, 2) Introduction / background of the problem, 3) Objectives of the study, 4) Hypothesis, 5) Methodology (participants, tools — pre-test/post-test, observation), 6) Intervention design with week-wise plan, 7) Data collection & analysis (include a results table), 8) Findings, 9) Conclusions & recommendations for other teachers, 10) References section. Academic but practical tone.",
-    titleTemplate: "Action Research — {problem}",
-  },
-  {
-    id: "annual-report",
-    category: "reports",
-    icon: "BarChart3",
-    title: "Annual Report",
-    titleKn: "ವಾರ್ಷಿಕ ವರದಿ",
-    description:
-      "A polished annual report for your school or department.",
-    descriptionKn:
-      "ನಿಮ್ಮ ಶಾಲೆ ಅಥವಾ ಇಲಾಖೆಗಾಗಿ ಸುಸಜ್ಜಿತ ವಾರ್ಷಿಕ ವರದಿ.",
-    fields: [
-      f({ name: "schoolName", label: "School / department name", labelKn: "ಶಾಲೆ / ಇಲಾಖೆಯ ಹೆಸರು", type: "text", required: true, placeholder: "e.g. Govt Higher Primary School, Mandya" }),
-      f({ name: "academicYear", label: "Academic year", labelKn: "ಶೈಕ್ಷಣಿಕ ವರ್ಷ", type: "text", required: true, placeholder: "e.g. 2025-26", placeholderKn: "ಉದಾ: ೨೦೨೫-೨೬" }),
-      f({ name: "highlights", label: "Key highlights", labelKn: "ಪ್ರಮುಖ ಸಾಧನೆಗಳು", type: "textarea", required: true, placeholder: "e.g. 98% SSLC pass rate, won district science fair…", placeholderKn: "ಉದಾ: ಶೇ. ೯೮ ಉತ್ತೀರ್ಣತೆ…" }),
-      f({ name: "achievements", label: "Student / staff achievements", labelKn: "ವಿದ್ಯಾರ್ಥಿ / ಸಿಬ್ಬಂದಿ ಸಾಧನೆಗಳು", type: "textarea", placeholder: "e.g. Sports, cultural, competitions…" }),
-      f({ name: "enrollment", label: "Student strength", labelKn: "ವಿದ್ಯಾರ್ಥಿಗಳ ಸಂಖ್ಯೆ", type: "text", placeholder: "e.g. 320 students, 12 staff" }),
-    ],
-    prompt:
-      "Write a formal annual report for {{schoolName}} for the academic year {{academicYear}}. Highlights: {{highlights}}. Achievements: {{achievements}}. Student strength: {{enrollment}}. Structure: 1) Introduction / school overview, 2) Academic performance summary (include a simple results table), 3) Co-curricular and sports achievements, 4) Infrastructure and facilities update, 5) Teacher development activities, 6) Community / parent involvement, 7) Challenges and the year ahead, 8) Acknowledgment. Formal, celebratory, ready for a school magazine or PTA meeting.",
-    titleTemplate: "Annual Report {academicYear}",
-  },
 
   /* --------------------------- COMMUNICATION ---------------------- */
-  {
-    id: "parent-message",
-    category: "communication",
-    icon: "MessagesSquare",
-    title: "Parent Message",
-    titleKn: "ಪೋಷಕರಿಗೆ ಸಂದೇಶ",
-    description:
-      "A warm, professional message to send parents.",
-    descriptionKn:
-      "ಪೋಷಕರಿಗೆ ಕಳುಹಿಸಲು ಆತ್ಮೀಯ, ವೃತ್ತಿಪರ ಸಂದೇಶ.",
-    fields: [
-      f({ name: "studentName", label: "Student name", labelKn: "ವಿದ್ಯಾರ್ಥಿಯ ಹೆಸರು", type: "text", required: true, placeholder: "e.g. Anitha K" }),
-      f({ name: "className", label: "Class / section", labelKn: "ತರಗತಿ / ವಿಭಾಗ", type: "text", required: true, placeholder: "e.g. Class 7 A", placeholderKn: "ಉದಾ: ೭ನೇ ತರಗತಿ" }),
-      f({ name: "purpose", label: "Purpose", labelKn: "ಉದ್ದೇಶ", type: "select", required: true, options: [
-        { value: "Positive feedback", label: "Positive feedback", labelKn: "ಸಕಾರಾತ್ಮಕ ಪ್ರತಿಕ್ರಿಯೆ" },
-        { value: "Concern about progress", label: "Concern about progress", labelKn: "ಪ್ರಗತಿಯ ಬಗ್ಗೆ ಕಾಳಜಿ" },
-        { value: "Request a meeting", label: "Request a meeting", labelKn: "ಭೇಟಿಗೆ ವಿನಂತಿ" },
-        { value: "Attendance concern", label: "Attendance concern", labelKn: "ಹಾಜರಾತಿ ಕಾಳಜಿ" },
-        { value: "General update", label: "General update", labelKn: "ಸಾಮಾನ್ಯ ಮಾಹಿತಿ" },
-      ] }),
-      f({ name: "details", label: "Specific details", labelKn: "ನಿರ್ದಿಷ್ಟ ವಿವರಗಳು", type: "textarea", placeholder: "e.g. Improvement in maths, but missing homework…" }),
-    ],
-    prompt:
-      "Write a warm, professional parent message for {{studentName}} ({{className}}) about: {{purpose}}. Details: {{details}}. Requirements: 1) Friendly opening with the parent's proper title, 2) Specific, honest feedback, 3) A collaborative tone ('we', not 'you must'), 4) A clear next step or meeting request, 5) Contact details placeholder, 6) Warm closing. Keep it under 150 words, easy to read, and suitable for WhatsApp or letter.",
-    titleTemplate: "Parent Message — {studentName}",
-  },
   {
     id: "school-notice",
     category: "communication",
@@ -760,99 +640,6 @@ export const TOOLS: ToolDef[] = [
     titleTemplate: "Circular Simplified",
   },
 
-  /* ------------------------------ CAREER -------------------------- */
-  {
-    id: "resume-builder",
-    category: "career",
-    icon: "IdCard",
-    title: "Resume Builder",
-    titleKn: "ರೆಸ್ಯೂಮ್ ಬಿಲ್ಡರ್",
-    description:
-      "A professional teacher resume ready for any school or interview.",
-    descriptionKn:
-      "ಯಾವುದೇ ಶಾಲೆ ಅಥವಾ ಸಂದರ್ಶನಕ್ಕೆ ಸಿದ್ಧವಾದ ವೃತ್ತಿಪರ ಶಿಕ್ಷಕರ ರೆಸ್ಯೂಮ್.",
-    fields: [
-      f({ name: "fullName", label: "Full name", labelKn: "ಪೂರ್ಣ ಹೆಸರು", type: "text", required: true, fromProfile: "role", placeholder: "e.g. Sunita M Patil" }),
-      f({ name: "targetRole", label: "Target role", labelKn: "ಗುರಿ ಹುದ್ದೆ", type: "text", required: true, placeholder: "e.g. Primary School Teacher (Kannada medium)", placeholderKn: "ಉದಾ: ಪ್ರಾಥಮಿಕ ಶಾಲಾ ಶಿಕ್ಷಕಿ" }),
-      f({ name: "experience", label: "Teaching experience", labelKn: "ಬೋಧನಾ ಅನುಭವ", type: "text", required: true, placeholder: "e.g. 5 years teaching Maths & Science, Classes 6-8", placeholderKn: "ಉದಾ: ೫ ವರ್ಷ…" }),
-      f({ name: "education", label: "Education", labelKn: "ವಿದ್ಯಾಭ್ಯಾಸ", type: "text", required: true, placeholder: "e.g. B.Ed., B.Sc (Mathematics), KARTET qualified", placeholderKn: "ಉದಾ: ಬಿಎಡ್, ಬಿಎಸ್ಸಿ…" }),
-      f({ name: "skills", label: "Key skills", labelKn: "ಪ್ರಮುಖ ಕೌಶಲ್ಯಗಳು", type: "text", fromProfile: "skills", placeholder: "e.g. Lesson planning, classroom management, digital teaching" }),
-      f({ name: "achievements", label: "Achievements", labelKn: "ಸಾಧನೆಗಳು", type: "textarea", placeholder: "e.g. Best teacher award, 100% results…" }),
-    ],
-    prompt:
-      "Create a professional, ATS-friendly resume for {{fullName}} targeting {{targetRole}}. Experience: {{experience}}. Education: {{education}}. Skills: {{skills}}. Achievements: {{achievements}}. Structure: 1) Header (name, phone/email placeholders), 2) Professional summary (3 lines), 3) Core skills (bullet chips), 4) Work experience with action verbs and measurable outcomes, 5) Education & certifications, 6) Achievements, 7) Languages known, 8) Interests (optional). Use clear markdown headings and bullets. One page worth of content.",
-    titleTemplate: "Resume — {fullName}",
-  },
-  {
-    id: "cover-letter",
-    category: "career",
-    icon: "Mail",
-    title: "Cover Letter",
-    titleKn: "ಕವರ್ ಲೆಟರ್",
-    description:
-      "A persuasive cover letter tailored to a specific school job.",
-    descriptionKn:
-      "ನಿರ್ದಿಷ್ಟ ಶಾಲಾ ಹುದ್ದೆಗೆ ಅನುಗುಣವಾದ ಮನವೊಲಿಸುವ ಕವರ್ ಲೆಟರ್.",
-    fields: [
-      f({ name: "role", label: "Position applying for", labelKn: "ಅರ್ಜಿ ಸಲ್ಲಿಸುವ ಹುದ್ದೆ", type: "text", required: true, placeholder: "e.g. High School Science Teacher", placeholderKn: "ಉದಾ: ಪ್ರೌಢಶಾಲಾ ವಿಜ್ಞಾನ ಶಿಕ್ಷಕ" }),
-      f({ name: "schoolName", label: "School name", labelKn: "ಶಾಲೆಯ ಹೆಸರು", type: "text", required: true, placeholder: "e.g. Oxford Public School, Hubballi" }),
-      f({ name: "name", label: "Your name", labelKn: "ನಿಮ್ಮ ಹೆಸರು", type: "text", required: true, fromProfile: "role", placeholder: "e.g. Mahesh Gowda" }),
-      f({ name: "experience", label: "Experience highlights", labelKn: "ಅನುಭವದ ಮುಖ್ಯಾಂಶಗಳು", type: "textarea", required: true, placeholder: "e.g. 4 years, improved SSLC results by 15%, digital classroom experience" }),
-    ],
-    prompt:
-      "Write a persuasive cover letter from {{name}} for the position of {{role}} at {{schoolName}}. Experience highlights: {{experience}}. Structure: 1) Date and recipient block, 2) Subject line, 3) Opening — position and enthusiasm, 4) Body paragraph 1 — experience & results (with numbers), 5) Body paragraph 2 — how you fit this specific school (mention Kannada/English medium, values, co-curriculars), 6) Closing — call to action and availability, 7) Signature. Confident, humble, specific. Under 350 words.",
-    titleTemplate: "Cover Letter — {role}",
-  },
-  {
-    id: "interview-prep",
-    category: "career",
-    icon: "UserCheck",
-    title: "Interview Prep",
-    titleKn: "ಸಂದರ್ಶನ ಸಿದ್ಧತೆ",
-    description:
-      "Likely interview questions with strong model answers.",
-    descriptionKn:
-      "ಸಂಭವನೀಯ ಸಂದರ್ಶನ ಪ್ರಶ್ನೆಗಳು ಮತ್ತು ಉತ್ತಮ ಮಾದರಿ ಉತ್ತರಗಳು.",
-    fields: [
-      f({ name: "role", label: "Position", labelKn: "ಹುದ್ದೆ", type: "text", required: true, placeholder: "e.g. TGT Mathematics", placeholderKn: "ಉದಾ: ಗಣಿತ ಶಿಕ್ಷಕ" }),
-      f({ name: "experience", label: "Your experience", labelKn: "ನಿಮ್ಮ ಅನುಭವ", type: "text", required: true, placeholder: "e.g. 3 years, Classes 5-10", placeholderKn: "ಉದಾ: ೩ ವರ್ಷ…" }),
-      f({ name: "subjectArea", label: "Subject area", labelKn: "ವಿಷಯ ಕ್ಷೇತ್ರ", type: "text", required: true, fromProfile: "subjects", placeholder: "e.g. Mathematics", placeholderKn: "ಉದಾ: ಗಣಿತ" }),
-      f({ name: "questionTypes", label: "Question types", labelKn: "ಪ್ರಶ್ನೆ ಪ್ರಕಾರಗಳು", type: "select", required: true, options: [
-        { value: "All types", label: "All types", labelKn: "ಎಲ್ಲಾ ಪ್ರಕಾರಗಳು" },
-        { value: "General + situational", label: "General + situational", labelKn: "ಸಾಮಾನ್ಯ + ಸನ್ನಿವೇಶ" },
-        { value: "Subject knowledge", label: "Subject knowledge", labelKn: "ವಿಷಯ ಜ್ಞಾನ" },
-        { value: "Pedagogy", label: "Pedagogy", labelKn: "ಬೋಧನಾ ವಿಧಾನ" },
-      ] }),
-    ],
-    prompt:
-      "Prepare me for a teacher interview for {{role}} (experience: {{experience}}, subject: {{subjectArea}}). Question types: {{questionTypes}}. Provide: 1) 12 likely interview questions grouped by type, 2) A strong model answer for each (2-4 sentences, specific, using my experience), 3) 3 questions I should ask the panel, 4) 5 do's and 5 don'ts, 5) A 30-second 'tell me about yourself' script, 6) 3 common tricky questions (e.g., 'Why should we hire you?') with punchy answers. Practical and honest.",
-    titleTemplate: "Interview Prep — {role}",
-  },
-  {
-    id: "demo-class-planner",
-    category: "career",
-    icon: "School",
-    title: "Demo Class Planner",
-    titleKn: "ಪ್ರಾತ್ಯಕ್ಷಿಕೆ ತರಗತಿ ಯೋಜಕ",
-    description:
-      "A minute-by-minute demo lesson plan that impresses the panel.",
-    descriptionKn:
-      "ನಿರ್ಣಾಯಕರನ್ನು ಮೆಚ್ಚಿಸುವ ನಿಮಿಷ-ನಿಮಿಷಕ್ಕೆ ಪ್ರಾತ್ಯಕ್ಷಿಕೆ ಪಾಠ ಯೋಜನೆ.",
-    fields: [
-      f({ name: "topic", label: "Demo topic", labelKn: "ಪ್ರಾತ್ಯಕ್ಷಿಕೆ ವಿಷಯ", type: "text", required: true, placeholder: "e.g. Trigonometry basics", placeholderKn: "ಉದಾ: ತ್ರಿಕೋನಮಿತಿ" }),
-      f({ name: "subject", label: "Subject", labelKn: "ವಿಷಯ", type: "text", required: true, fromProfile: "subjects", placeholder: "e.g. Mathematics", placeholderKn: "ಉದಾ: ಗಣಿತ" }),
-      f({ name: "gradeLevel", label: "Grade / Class", labelKn: "ದರ್ಜೆ / ತರಗತಿ", type: "select", required: true, options: GRADE_OPTIONS, fromProfile: "teachingLevel" }),
-      f({ name: "duration", label: "Demo duration", labelKn: "ಅವಧಿ", type: "select", required: true, options: DURATION_OPTIONS }),
-      f({ name: "panel", label: "Panel type", labelKn: "ನಿರ್ಣಾಯಕರ ತಂಡ", type: "select", required: true, options: [
-        { value: "School selection panel", label: "School selection panel", labelKn: "ಶಾಲಾ ಆಯ್ಕೆ ಸಮಿತಿ" },
-        { value: "District / BEO panel", label: "District / BEO panel", labelKn: "ಜಿಲ್ಲಾ / ಬಿಇಒ ಸಮಿತಿ" },
-        { value: "Private school panel", label: "Private school panel", labelKn: "ಖಾಸಗಿ ಶಾಲಾ ಸಮಿತಿ" },
-      ] }),
-    ],
-    prompt:
-      "Create a winning demo-class plan on {{topic}} for {{subject}}, {{gradeLevel}}, for a {{duration}} demo before a {{panel}}. Provide: 1) The one 'wow' hook to open with (30-60 sec), 2) A minute-by-minute timeline table (Time / Activity / What the panel observes), 3) 2 student questions you will ask, 4) The board work you will do (outline), 5) One simple teaching aid you can make the night before, 6) Likely panel questions after the demo with answers, 7) Common mistakes to avoid, 8) A confident 10-second closing line. Make it genuinely impressive and executable.",
-    titleTemplate: "Demo Class — {topic}",
-  },
 ];
 
 export const TOOL_BY_ID: Record<string, ToolDef> = Object.fromEntries(

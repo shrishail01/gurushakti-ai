@@ -4,6 +4,7 @@ import {
   ArrowUpRight,
   CheckCircle2,
   Copy,
+  Download,
   FileText,
   Loader2,
   RefreshCw,
@@ -51,6 +52,7 @@ export default function ToolGenerator() {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [doneInfo, setDoneInfo] = useState<GenerateDone | null>(null);
+  const [downloadingPpt, setDownloadingPpt] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
   const outputRef = useRef<HTMLDivElement | null>(null);
 
@@ -160,6 +162,24 @@ export default function ToolGenerator() {
       toast.success(t("common.copied"));
     } catch {
       toast.error("Clipboard unavailable — select the text and copy manually.");
+    }
+  };
+
+  /** PPT Presentation tool only: rebuild the generated slides as a .pptx. */
+  const isPptTool = tool?.id === "ppt-outline";
+  const handleDownloadPpt = async () => {
+    if (!output || downloadingPpt) return;
+    setDownloadingPpt(true);
+    try {
+      const { downloadPptxFromMarkdown } = await import("@/lib/pptx");
+      const baseName =
+        doneInfo?.title || `${tool?.title ?? "Presentation"} — ${parameters.topic ?? ""}`.trim();
+      await downloadPptxFromMarkdown(output, baseName || tool?.title || "Presentation");
+      toast.success(t("tool.pptReady"));
+    } catch {
+      toast.error(t("tool.pptFailed"));
+    } finally {
+      setDownloadingPpt(false);
     }
   };
 
@@ -452,6 +472,21 @@ export default function ToolGenerator() {
                 <Copy className="size-4" />
                 {t("common.copy")}
               </Button>
+              {isPptTool && (
+                <Button
+                  variant="outline"
+                  className="cursor-pointer border-teal-300 bg-teal-50/70 text-teal-800 hover:bg-teal-100"
+                  onClick={handleDownloadPpt}
+                  disabled={downloadingPpt}
+                >
+                  {downloadingPpt ? (
+                    <Loader2 className="size-4 animate-spin" />
+                  ) : (
+                    <Download className="size-4" />
+                  )}
+                  {downloadingPpt ? t("tool.downloadingPpt") : t("tool.downloadPpt")}
+                </Button>
+              )}
               <Button
                 variant="outline"
                 className="cursor-pointer text-teal-800"
