@@ -54,6 +54,15 @@ function cookieResponse(request: Request, body: unknown, token: string) {
   });
 }
 
+/** Remove the invisible "<!-- IMG: ... -->" markers used by the PPT tool
+ *  before persisting, so saved documents stay clean. */
+function stripPptImageMarkers(content: string): string {
+  return content
+    .replace(/<!--\s*IMG:[\s\S]*?-->/gi, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 function clientIp(request: Request): string {
   return (
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
@@ -274,7 +283,7 @@ async function runGeneration(
       userId: opts.userId,
       toolId: opts.toolId,
       title: opts.title,
-      content,
+      content: stripPptImageMarkers(content),
       parameters: opts.parameters,
     });
     send({ type: "done", documentId: saved.documentId, title: saved.title, stats: saved.stats });

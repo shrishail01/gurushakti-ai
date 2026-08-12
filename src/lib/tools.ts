@@ -250,9 +250,9 @@ export const TOOLS: ToolDef[] = [
     title: "PPT Presentation",
     titleKn: "ಪಿಪಿಟಿ ಪ್ರಸ್ತುತಿ",
     description:
-      "A complete classroom presentation you can download as a real .pptx file.",
+      "A complete classroom presentation with real photos, downloadable as a real .pptx file.",
     descriptionKn:
-      "ನಿಜವಾದ .pptx ಫೈಲ್ ಆಗಿ ಡೌನ್ಲೋಡ್ ಮಾಡಬಹುದಾದ ಸಂಪೂರ್ಣ ತರಗತಿ ಪ್ರಸ್ತುತಿ.",
+      "ನೈಜ ಫೋಟೋಗಳೊಂದಿಗೆ ಸಂಪೂರ್ಣ ತರಗತಿ ಪ್ರಸ್ತುತಿ, ನಿಜವಾದ .pptx ಫೈಲ್ ಆಗಿ ಡೌನ್ಲೋಡ್ ಮಾಡಬಹುದು.",
     fields: [
       f({ name: "topic", label: "Topic", labelKn: "ವಿಷಯ", type: "text", required: true, placeholder: "e.g. Photosynthesis", placeholderKn: "ಉದಾ: ದ್ಯುತಿಸಂಶ್ಲೇಷಣೆ" }),
       f({ name: "subject", label: "Subject", labelKn: "ವಿಷಯ", type: "text", required: true, fromProfile: "subjects", placeholder: "e.g. Biology", placeholderKn: "ಉದಾ: ಜೀವಶಾಸ್ತ್ರ" }),
@@ -272,7 +272,7 @@ export const TOOLS: ToolDef[] = [
       ] }),
     ],
     prompt:
-      "Create the FULL content of a {{numSlides}}-slide classroom presentation on {{topic}} for {{subject}} ({{gradeLevel}}) for an audience of {{audience}}. This will be converted into a real PowerPoint (.pptx) file, so write complete, ready-to-show slide content — NOT an outline and NOT notes about slides. STRICT FORMAT — each slide must start on its own line with a '## ' heading exactly like this: '## Slide 1: <Slide title>' followed only by 3–6 concise bullet points ('- ' lines) that are complete sentences the teacher can show as-is. Rules: Slide 1 is the title slide (title: '{{topic}}', then bullets like the subject, grade and a one-line subtitle). Slide 2 sets the hook/learning objective. Middle slides explain key concepts with one idea per bullet, plus at least one slide of real examples and one classroom activity slide. The final slide is the summary with 3 takeaway points and a 'Thank you!' line. No blank lines inside a slide; use a blank line only between slides. Follow a logical flow: title, hook/objective, concepts, examples, activity, summary.",
+      "Create the FULL content of a {{numSlides}}-slide classroom presentation on {{topic}} for {{subject}} ({{gradeLevel}}) for an audience of {{audience}}. This will be converted into a real PowerPoint (.pptx) file with REAL photos, so write complete, ready-to-show slide content — NOT an outline and NOT notes about slides. STRICT FORMAT — each slide must start on its own line with a '## ' heading exactly like this: '## Slide 1: <Slide title>' followed only by 3–6 concise bullet points ('- ' lines) that are complete sentences the teacher can show as-is. Rules: Slide 1 is the title slide (title: '{{topic}}', then bullets like the subject, grade and a one-line subtitle). Slide 2 sets the hook/learning objective. Middle slides explain key concepts with one idea per bullet, plus at least one slide of real examples and one classroom activity slide. The final slide is the summary with 3 takeaway points and a 'Thank you!' line. No blank lines inside a slide; use a blank line only between slides. Follow a logical flow: title, hook/objective, concepts, examples, activity, summary.\n\nREAL IMAGES: Most slides should also carry a real image. On any slide where a photograph or educational illustration would genuinely help students understand the content (the title slide, concept slides, examples, diagrams/processes, the classroom activity), add ONE extra invisible marker line right after that slide's bullets, on its own line, formatted EXACTLY like this: <!-- IMG: short image search query --> — where the query is 2–6 English words describing a real, findable image (e.g. <!-- IMG: green plant leaves sunlight -->, <!-- IMG: photosynthesis diagram chloroplast -->, <!-- IMG: plant roots absorbing water -->). Slide 1 (title) must get a strong hero query about the main topic, e.g. <!-- IMG: photosynthesis green plant sunlight -->. Do NOT add a marker to slides where an image adds no value (e.g. a pure summary or thank-you slide). Never add more than one marker per slide and never put the marker on the same line as a bullet.",
     titleTemplate: "{topic} — PPT",
   },
   {

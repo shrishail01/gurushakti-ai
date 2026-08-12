@@ -56,6 +56,11 @@ export default function ToolGenerator() {
   const abortRef = useRef<AbortController | null>(null);
   const outputRef = useRef<HTMLDivElement | null>(null);
 
+  // The PPT tool streams invisible "<!-- IMG: query -->" marker lines (used
+  // to source real images for the .pptx). Hide them from the on-screen
+  // output and from copy so the panel shows only the actual content.
+  const displayOutput = output.replace(/<!--\s*IMG:[\s\S]*?-->\s*/g, "");
+
   // Reset state whenever the tool changes.
   useEffect(() => {
     setOutput("");
@@ -158,7 +163,7 @@ export default function ToolGenerator() {
   const handleCopy = async () => {
     if (!output) return;
     try {
-      await navigator.clipboard.writeText(output);
+      await navigator.clipboard.writeText(displayOutput);
       toast.success(t("common.copied"));
     } catch {
       toast.error("Clipboard unavailable — select the text and copy manually.");
@@ -174,8 +179,15 @@ export default function ToolGenerator() {
       const { downloadPptxFromMarkdown } = await import("@/lib/pptx");
       const baseName =
         doneInfo?.title || `${tool?.title ?? "Presentation"} — ${parameters.topic ?? ""}`.trim();
-      await downloadPptxFromMarkdown(output, baseName || tool?.title || "Presentation");
-      toast.success(t("tool.pptReady"));
+      const { imageCount } = await downloadPptxFromMarkdown(
+        output,
+        baseName || tool?.title || "Presentation",
+      );
+      toast.success(
+        imageCount > 0
+          ? t("tool.pptReadyWithImages").replace("{count}", String(imageCount))
+          : t("tool.pptReady"),
+      );
     } catch {
       toast.error(t("tool.pptFailed"));
     } finally {
@@ -441,7 +453,7 @@ export default function ToolGenerator() {
                   </div>
                 )}
                 <div className="max-h-[70vh] overflow-y-auto rounded-xl border border-border/70 bg-background/60 p-4 md:p-5">
-                  <Markdown content={output} />
+                  <Markdown content={displayOutput} />
                   {status === "generating" && (
                     <span className="mt-1 inline-block h-4 w-2 animate-pulse rounded-sm bg-teal-500" />
                   )}
