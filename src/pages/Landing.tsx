@@ -46,15 +46,15 @@ const FEATURES = [
   },
   {
     icon: FileText,
-    title: "Reports & Documents",
-    titleKn: "ವರದಿಗಳು",
-    desc: "Observation, internship, action research and annual reports.",
+    title: "Worksheets & Aids",
+    titleKn: "ಕಾರ್ಯಪತ್ರಗಳು",
+    desc: "Worksheets, PPT presentations, teaching aids and classroom activities.",
   },
   {
     icon: MessagesSquare,
-    title: "Parent Communication",
+    title: "Communication",
     titleKn: "ಸಂವಹನ",
-    desc: "Warm parent messages, school notices, leave letters and speeches.",
+    desc: "School notices, leave letters and event speeches — formal and print-ready.",
   },
   {
     icon: IndianRupee,
@@ -64,9 +64,9 @@ const FEATURES = [
   },
   {
     icon: Rocket,
-    title: "Career Growth",
-    titleKn: "ವೃತ್ತಿ",
-    desc: "Resumes, cover letters, interview prep and demo class plans.",
+    title: "Utility & Translation",
+    titleKn: "ಉಪಯುಕ್ತತೆ",
+    desc: "English–Kannada translation and a circular simplifier for everyday school work.",
   },
 ];
 
@@ -75,8 +75,8 @@ const TOOL_SNIPPETS = [
   "Worksheet",
   "Question Paper",
   "Quiz Generator",
-  "Parent Message",
-  "Resume Builder",
+  "Daily Plan",
+  "Teaching Aid",
   "Blueprints",
   "Rubrics",
   "Speeches",
@@ -100,7 +100,7 @@ const TESTIMONIALS = [
     name: "Priya S.",
     role: "B.Ed. Student, Bengaluru",
     quote:
-      "Internship reports, micro-teaching plans, observation reports — everything I needed for college submission, ready instantly.",
+      "Micro-teaching plans, worksheets and question papers — everything I needed for practice teaching, ready in minutes.",
   },
 ];
 
@@ -130,7 +130,7 @@ export default function Landing() {
               Features
             </a>
             <a href="#tools" className="transition-colors hover:text-foreground">
-              27 Tools
+              18 Tools
             </a>
             <a href="#how" className="transition-colors hover:text-foreground">
               How it works
@@ -208,12 +208,12 @@ export default function Landing() {
                 onClick={() => navigate(isAuthenticated ? "/toolkit" : "/login")}
               >
                 <Wand2 className="size-4" />
-                Explore 27 tools
+                Explore 18 tools
               </Button>
             </div>
             <div className="mt-10 grid max-w-md grid-cols-3 gap-4">
               {[
-                { value: "27", label: "AI tools" },
+                { value: "18", label: "AI tools" },
                 { value: "2", label: "languages" },
                 { value: "15", label: "min saved per doc" },
               ].map((stat) => (
@@ -313,8 +313,8 @@ export default function Landing() {
               <span className="text-brand-gradient">entire teaching day</span>
             </h2>
             <p className="mt-3 text-muted-foreground">
-              From planning to assessments, reports to communication — 27 tools
-              built for the way Karnataka&apos;s teachers actually work.
+              From planning to assessments, communication to translation — 18
+              tools built for the way Karnataka&apos;s teachers actually work.
             </p>
           </motion.div>
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -358,15 +358,15 @@ export default function Landing() {
             className="flex flex-col items-center gap-4 text-center"
           >
             <Badge className="mb-2 rounded-full border-teal-200 bg-teal-50 px-3 py-1 text-teal-800">
-              27 tools · 6 categories
+              18 tools · 4 categories
             </Badge>
             <h2 className="text-3xl font-extrabold tracking-tight md:text-4xl">
               Every tool. One generator.
             </h2>
             <p className="max-w-xl text-muted-foreground">
               Each tool has its own fields and validation — teaching,
-              assessment, reports, communication, utility and career. One
-              dynamic engine powers them all.
+              assessment, communication and utility. One dynamic engine powers
+              them all.
             </p>
             <div className="mt-8 flex max-w-2xl flex-wrap justify-center gap-2">
               {TOOL_SNIPPETS.map((name) => (
@@ -378,7 +378,7 @@ export default function Landing() {
                 </span>
               ))}
               <span className="rounded-full bg-brand-gradient px-4 py-1.5 text-sm font-semibold text-white">
-                + 17 more
+                + 8 more
               </span>
             </div>
           </motion.div>
@@ -412,7 +412,7 @@ export default function Landing() {
                 step: "2",
                 icon: Wand2,
                 title: "Pick a tool",
-                desc: "Choose from 27 tools, fill a few fields, pick English or ಕನ್ನಡ — hit Generate.",
+                desc: "Choose from 18 tools, fill a few fields, pick English or ಕನ್ನಡ — hit Generate.",
               },
               {
                 step: "3",

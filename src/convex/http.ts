@@ -206,7 +206,10 @@ async function runGeneration(
         "GEMINI_API_KEY is not configured yet. Add it in the project Keys/API-keys settings, then try again.",
       );
     }
-    const model = process.env.GEMINI_MODEL ?? "gemini-2.0-flash";
+    // gemini-2.0-flash was shut down June 1, 2026 — default to a current
+    // model with a 65,536-token output budget so long (incl. bilingual)
+    // documents are never truncated. GEMINI_MODEL overrides if set.
+    const model = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${encodeURIComponent(key.trim())}`;
 
     const res = await fetch(url, {
@@ -221,7 +224,7 @@ async function runGeneration(
           ],
         },
         contents: [{ role: "user", parts: [{ text: opts.prompt }] }],
-        generationConfig: { temperature: 0.7, maxOutputTokens: 16000 },
+        generationConfig: { temperature: 0.7, maxOutputTokens: 65536 },
       }),
       signal: AbortSignal.timeout(240_000),
     });
