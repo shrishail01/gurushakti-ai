@@ -29,7 +29,7 @@ const BULLET_RE = /^[-*•]\s+(.*)$/;
  *  model does not follow the exact "## Slide N:" format. */
 export function parsePptSlides(markdown: string): PptSlide[] {
   const slides: PptSlide[] = [];
-  let current: { title: string; bullets: string[] } | null = null;
+  let current: PptSlide | null = null;
   let sawSlideMarker = false;
 
   for (const rawLine of markdown.split("\n")) {
@@ -38,7 +38,7 @@ export function parsePptSlides(markdown: string): PptSlide[] {
     if (slideMatch) {
       sawSlideMarker = true;
       const title = slideMatch[2]?.trim() || `Slide ${slideMatch[1]}`;
-      current = { title, bullets: [] };
+      current = { title, bullets: [], isTitle: false };
       slides.push(current);
       continue;
     }
@@ -47,7 +47,7 @@ export function parsePptSlides(markdown: string): PptSlide[] {
       // No slide marker yet — treat "## Heading" blocks as slides too.
       const heading = line.match(HEADING_RE);
       if (heading && heading[1]?.trim()) {
-        current = { title: heading[1].trim(), bullets: [] };
+        current = { title: heading[1].trim(), bullets: [], isTitle: false };
         slides.push(current);
       }
       continue;
@@ -66,7 +66,7 @@ export function parsePptSlides(markdown: string): PptSlide[] {
       .map((l) => l.trim())
       .filter((l) => l.length > 0 && !l.startsWith("#"))
       .slice(0, 12);
-    slides.push({ title: "Presentation", bullets });
+    slides.push({ title: "Presentation", bullets, isTitle: false });
   }
 
   return slides
@@ -160,7 +160,9 @@ export async function downloadPptxFromMarkdown(
       );
       // Subtitle bullets (subject / grade / one-liner).
       if (slide.bullets.length) {
-        s.addText(slide.bullets.slice(0, 4), {
+        s.addText(
+          slide.bullets.slice(0, 4).map((b) => ({ text: b })),
+          {
           x: 1.4,
           y: 4.25,
           w: 10.5,
@@ -194,10 +196,10 @@ export async function downloadPptxFromMarkdown(
         line: { color: EMERALD },
       });
 
-      const bullets =
+      const bullets: { text: string }[] =
         slide.bullets.length > 0
-          ? slide.bullets
-          : ["(No bullet points on this slide — add your own notes.)"];
+          ? slide.bullets.map((b) => ({ text: b }))
+          : [{ text: "(No bullet points on this slide — add your own notes.)" }];
 
       s.addText(bullets, {
         x: 0.75,
@@ -209,7 +211,7 @@ export async function downloadPptxFromMarkdown(
         fontFace: "Calibri",
         bullet: { code: "25AA", indent: 14 },
         lineSpacing: 30,
-        paraSpaceAfterPt: 10,
+        paraSpaceAfter: 10,
         valign: "top",
       });
     }
@@ -236,8 +238,11 @@ export async function downloadPptxFromMarkdown(
     });
   });
 
-  const blob = await pptx.write("blob");
-  const url = URL.createObjectURL(blob);
+  const result = await pptx.write({ outputType: "blob" });
+  if (!(result instanceof Blob)) {
+    throw new Error("Could not generate the PPT file.");
+  }
+  const url = URL.createObjectURL(result);
   const anchor = document.createElement("a");
   anchor.href = url;
   anchor.download = `${sanitizeFileName(baseName)}.pptx`;
