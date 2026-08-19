@@ -15,12 +15,7 @@ import type {
   UserProfile,
 } from "./types";
 
-const CONVEX_URL = import.meta.env.VITE_CONVEX_URL as string;
-// Convex serves custom HTTP routes (our REST API) on the *.convex.site
-// domain, while the *.convex.cloud domain only handles the Convex client
-// API (/api/query etc.). Derive the site URL from the deployment URL so
-// every /api/* request reaches the HTTP router instead of 404ing.
-export const API_BASE = `${CONVEX_URL.replace(/\.convex\.cloud$/, ".convex.site")}/api`;
+export const API_BASE = (import.meta.env.VITE_API_URL as string) || "/api";
 
 let memoryToken: string | null = null;
 

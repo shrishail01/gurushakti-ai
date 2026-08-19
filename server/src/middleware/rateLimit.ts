@@ -1,9 +1,3 @@
-/**
- * Minimal in-memory rate limiter for the API layer — pure module (no Node
- * imports). Keys are per-user (or per-IP for auth endpoints); buckets are
- * evicted automatically when their window expires.
- */
-
 interface Bucket {
   count: number;
   resetAt: number;
@@ -11,7 +5,7 @@ interface Bucket {
 
 const buckets = new Map<string, Bucket>();
 
-export function rateLimit(
+export function runRateLimit(
   key: string,
   limit: number,
   windowMs: number,

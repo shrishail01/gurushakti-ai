@@ -19,6 +19,7 @@ export interface PptSlide {
   bullets: string[];
   /** First slide rendered with the larger title treatment. */
   isTitle: boolean;
+  imageUrl?: string;
 }
 
 const SLIDE_RE = /^##\s+slide\s*(\d+)\s*[:：]\s*(.*)$/i;
@@ -50,6 +51,12 @@ export function parsePptSlides(markdown: string): PptSlide[] {
         current = { title: heading[1].trim(), bullets: [], isTitle: false };
         slides.push(current);
       }
+      continue;
+    }
+
+    const imageMatch = line.match(/!\[.*?\]\((.*?)\)/);
+    if (imageMatch && imageMatch[1]) {
+      current.imageUrl = imageMatch[1].trim();
       continue;
     }
 
@@ -201,19 +208,46 @@ export async function downloadPptxFromMarkdown(
           ? slide.bullets.map((b) => ({ text: b }))
           : [{ text: "(No bullet points on this slide — add your own notes.)" }];
 
-      s.addText(bullets, {
-        x: 0.75,
-        y: 1.75,
-        w: 11.8,
-        h: 4.9,
-        fontSize: 17,
-        color: INK,
-        fontFace: "Calibri",
-        bullet: { code: "25AA", indent: 14 },
-        lineSpacing: 30,
-        paraSpaceAfter: 10,
-        valign: "top",
-      });
+      if (slide.imageUrl) {
+        // Two-column split layout: bullets on the left, image on the right
+        s.addText(bullets, {
+          x: 0.75,
+          y: 1.75,
+          w: 6.2,
+          h: 4.9,
+          fontSize: 17,
+          color: INK,
+          fontFace: "Calibri",
+          bullet: { code: "25AA", indent: 14 },
+          lineSpacing: 30,
+          paraSpaceAfter: 10,
+          valign: "top",
+        });
+
+        s.addImage({
+          path: slide.imageUrl,
+          x: 7.3,
+          y: 1.75,
+          w: 5.3,
+          h: 4.5,
+          sizing: { type: "contain", w: 5.3, h: 4.5 },
+        });
+      } else {
+        // Full width layout
+        s.addText(bullets, {
+          x: 0.75,
+          y: 1.75,
+          w: 11.8,
+          h: 4.9,
+          fontSize: 17,
+          color: INK,
+          fontFace: "Calibri",
+          bullet: { code: "25AA", indent: 14 },
+          lineSpacing: 30,
+          paraSpaceAfter: 10,
+          valign: "top",
+        });
+      }
     }
 
     // Footer with slide number.

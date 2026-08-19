@@ -1,41 +1,28 @@
-"use node";
+import type { Response, NextFunction } from "express";
+import type { AuthRequest } from "../middleware/auth.js";
+import { getDb } from "../db.js";
 
-/**
- * B.Ed Past Question Papers — Node runtime action called from the V8 HTTP
- * router. Reads from the MongoDB `questionPapers` collection.
- *
- * Papers are added by administrators (or a future upload flow). This action
- * only ever lists documents that are already in the database, so nothing
- * fake or unverified is ever shown: the collection is expected to only
- * contain authentic papers with a `verified: true` flag.
- */
+interface QuestionPaper {
+  _id: string;
+  title: string;
+  subject: string;
+  semester: string;
+  year: string;
+  university: string;
+  description?: string;
+  fileUrl?: string;
+  verified: boolean;
+  createdAt: number;
+}
 
-import { internalAction } from "./_generated/server";
-import { v } from "convex/values";
-import { getDb } from "./lib/mongo";
-import type { QuestionPaper } from "../lib/types";
+export async function listQuestionPapers(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    const q = (req.query.q as string ?? "").trim().slice(0, 100);
+    const subject = (req.query.subject as string ?? "").trim().slice(0, 100);
+    const semester = (req.query.semester as string ?? "").trim().slice(0, 20);
+    const year = (req.query.year as string ?? "").trim().slice(0, 10);
+    const university = (req.query.university as string ?? "").trim().slice(0, 120);
 
-export const listQuestionPapers = internalAction({
-  args: {
-    q: v.string(),
-    subject: v.string(),
-    semester: v.string(),
-    year: v.string(),
-    university: v.string(),
-  },
-  handler: async (
-    _ctx,
-    { q, subject, semester, year, university },
-  ): Promise<{
-    items: QuestionPaper[];
-    total: number;
-    filters: {
-      subjects: string[];
-      semesters: string[];
-      years: string[];
-      universities: string[];
-    };
-  }> => {
     const db = await getDb();
     const collection = db.collection<QuestionPaper>("questionPapers");
 
@@ -44,6 +31,7 @@ export const listQuestionPapers = internalAction({
     if (semester) filter.semester = semester;
     if (year) filter.year = year;
     if (university) filter.university = university;
+    
     if (q) {
       const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       filter.title = { $regex: escaped, $options: "i" };
@@ -56,7 +44,7 @@ export const listQuestionPapers = internalAction({
       .limit(100)
       .toArray();
 
-    // Facet options are derived from real data so filters always stay honest.
+    // Retrieve facets dynamically
     const [subjects, semesters, years, universities] = await Promise.all([
       collection.distinct("subject"),
       collection.distinct("semester"),
@@ -77,15 +65,17 @@ export const listQuestionPapers = internalAction({
       createdAt: doc.createdAt ?? 0,
     });
 
-    return {
+    res.status(200).json({
       items: docs.map(toItem),
       total,
       filters: {
-        subjects: [...new Set(subjects)].sort(),
-        semesters: [...new Set(semesters)].sort(),
-        years: [...new Set(years)].sort().reverse(),
-        universities: [...new Set(universities)].sort(),
+        subjects: [...new Set(subjects)].filter(Boolean).sort(),
+        semesters: [...new Set(semesters)].filter(Boolean).sort(),
+        years: [...new Set(years)].filter(Boolean).sort().reverse(),
+        universities: [...new Set(universities)].filter(Boolean).sort(),
       },
-    };
-  },
-});
+    });
+  } catch (error) {
+    next(error);
+  }
+}

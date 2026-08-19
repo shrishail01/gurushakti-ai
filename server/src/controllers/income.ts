@@ -1,22 +1,28 @@
-"use node";
-
-/**
- * Income Engine — Node runtime action. Uses the user's REAL profile
- * (subjects, teaching level, district, digital skill level, devices, free
- * hours, income goal) to generate 5 personalised income opportunities.
- * Prefers Gemini; falls back to a deterministic profile-driven generator
- * when the AI key is missing or the AI output is unparseable. All figures
- * are explicitly labelled estimates — we never guarantee earnings.
- */
-
-import { internalAction } from "./_generated/server";
-import { v } from "convex/values";
-import { getDb, type UserDoc } from "./lib/mongo";
-import { httpError } from "./lib/errors";
-import type { IncomeOpportunity, IncomeResponse } from "../lib/types";
+import type { Response, NextFunction } from "express";
+import type { AuthRequest } from "../middleware/auth.js";
+import { getDb } from "../db.js";
+import { runRateLimit } from "../middleware/rateLimit.js";
+import { ApiError } from "../middleware/error.js";
+import type { UserDoc } from "../lib/types.js";
 
 const DISCLAIMER =
   "These income figures are rough estimates based on your profile and common market rates in Karnataka. They are NOT guarantees — actual earnings depend on effort, demand and consistency.";
+
+interface IncomeOpportunity {
+  opportunity: string;
+  requiredSkills: string[];
+  tools: string[];
+  startupCost: string;
+  pricing: string;
+  month1: string;
+  month3: string;
+  month6: string;
+  timeToFirstEarning: string;
+  difficulty: "Low" | "Medium" | "High";
+  risk: "Low" | "Medium" | "High";
+  actionPlan7Day: string[];
+  realityCheck: string;
+}
 
 function getGeminiKey(): string | null {
   const key = process.env.GEMINI_API_KEY;
@@ -58,7 +64,7 @@ async function incomeFromGemini(user: UserDoc): Promise<IncomeOpportunity[]> {
     'opportunity (string), requiredSkills (array of strings), tools (array of strings), startupCost (string like "₹500 – ₹2,000"), pricing (string like "₹1,500/month per student"), month1 (string like "₹0 – ₹5,000"), month3 (string like "₹8,000 – ₹20,000"), month6 (string like "₹20,000 – ₹50,000"), timeToFirstEarning (string like "2–4 weeks"), difficulty ("Low" | "Medium" | "High"), risk ("Low" | "Medium" | "High"), actionPlan7Day (array of exactly 7 strings, day-by-day actions), realityCheck (string, one honest caveat sentence).',
   ].join("\n");
 
-  const model = process.env.GEMINI_MODEL ?? "gemini-2.0-flash";
+  const model = process.env.GEMINI_MODEL ?? "gemini-2.5-flash";
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?alt=sse&key=${encodeURIComponent(key)}`;
 
   const res = await fetch(url, {
@@ -259,24 +265,30 @@ function fallbackIncome(user: UserDoc): IncomeOpportunity[] {
   ];
 }
 
-export const generateIncome = internalAction({
-  args: { userId: v.string() },
-  handler: async (_ctx, { userId }) => {
+export async function generateIncome(req: AuthRequest, res: Response, next: NextFunction) {
+  try {
+    const limited = runRateLimit(`income:${req.userId}`, 10, 60_000);
+    if (!limited.ok) {
+      throw new ApiError(429, "Please wait a moment before generating again.");
+    }
+
     const db = await getDb();
-    const user = await db.collection<UserDoc>("users").findOne({ _id: userId });
-    if (!user) httpError(401, "This account no longer exists.");
+    const user = await db.collection<UserDoc>("users").findOne({ _id: req.userId });
+    if (!user) throw new ApiError(401, "This account no longer exists.");
 
     let opportunities: IncomeOpportunity[];
-    let source: IncomeResponse["source"] = "template";
+    let source: "ai" | "template" = "template";
 
     try {
       opportunities = await incomeFromGemini(user);
       source = "ai";
-    } catch {
+    } catch (e) {
       opportunities = fallbackIncome(user);
       source = "template";
     }
 
-    return { opportunities, source, disclaimer: DISCLAIMER };
-  },
-});
+    res.status(200).json({ opportunities, source, disclaimer: DISCLAIMER });
+  } catch (error) {
+    next(error);
+  }
+}

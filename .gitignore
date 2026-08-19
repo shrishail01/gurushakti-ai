@@ -1,4 +1,10 @@
+.env
 .env.local
 node_modules
 dist
 src/convex/_generated
+
+# Backend compiled output & environment secrets
+server/.env
+server/dist/
+server/node_modules/
