@@ -91,6 +91,7 @@ export default function ToolGenerator() {
         initial[field.name] = "";
       }
     }
+    initial["includeVisuals"] = "Yes";
     setParameters(initial);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toolId]);
@@ -319,6 +320,18 @@ export default function ToolGenerator() {
           </h2>
           <div className="space-y-4">
             {tool.fields.map(renderField)}
+
+            {renderField({
+              name: "includeVisuals",
+              label: lang === "kn" ? "ಸಂಬಂಧಿತ ಚಿತ್ರಗಳು/ದೃಶ್ಯಗಳನ್ನು ಸೇರಿಸಬೇಕೆ?" : "Include relevant images/visuals?",
+              labelKn: "ಸಂಬಂಧಿತ ಚಿತ್ರಗಳು/ದೃಶ್ಯಗಳನ್ನು ಸೇರಿಸಬೇಕೆ?",
+              type: "select",
+              required: true,
+              options: [
+                { value: "Yes", label: "Yes", labelKn: "ಹೌದು" },
+                { value: "No", label: "No", labelKn: "ಇಲ್ಲ" }
+              ]
+            })}
 
             <div className="space-y-1.5">
               <label className="text-sm font-medium">
