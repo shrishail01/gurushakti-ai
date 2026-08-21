@@ -173,14 +173,28 @@ export default function ToolGenerator() {
   /** PPT Presentation tool only: rebuild the generated slides as a .pptx. */
   const isPptTool = tool?.id === "ppt-outline";
   const handleDownloadPpt = async () => {
-    if (!output || downloadingPpt) return;
+    if (!output || downloadingPpt || !doneInfo?.documentId) return;
     setDownloadingPpt(true);
     try {
       const { downloadPptxFromMarkdown } = await import("@/lib/pptx");
       const baseName =
         doneInfo?.title || `${tool?.title ?? "Presentation"} — ${parameters.topic ?? ""}`.trim();
+
+      // Fetch the saved document from MongoDB — the backend has already resolved
+      // all ![IMAGE_SEARCH:] placeholders to real Wikimedia URLs before saving.
+      // The raw streamed `output` still contains unresolved placeholders.
+      let pptContent = output;
+      try {
+        const savedDoc = await api.getDocument(doneInfo.documentId);
+        if (savedDoc.document.content) {
+          pptContent = savedDoc.document.content;
+        }
+      } catch {
+        // Fall back to raw output if fetch fails
+      }
+
       const { imageCount } = await downloadPptxFromMarkdown(
-        output,
+        pptContent,
         baseName || tool?.title || "Presentation",
       );
       toast.success(

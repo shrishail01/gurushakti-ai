@@ -114,39 +114,15 @@ function sanitizeFileName(name: string): string {
 /* Image query fallback (when Gemini omitted a marker on one slide)    */
 /* ------------------------------------------------------------------ */
 
-const NON_CONCEPT_TITLE =
-  /\b(thank|summary|takeaway|recap|conclusion|homework|assignment|quiz|question|reference|assessment|evaluation|review|answer|test)\b/i;
-
-const STOP_WORDS = new Set([
-  "a", "an", "the", "and", "or", "of", "for", "to", "in", "on", "is",
-  "are", "what", "how", "why", "who", "where", "do", "does", "did",
-  "with", "about", "our", "your", "we", "us", "it", "its", "this", "that",
-]);
-
-function titleToImageQuery(title: string): string {
-  const cleaned = title
-    .replace(/^\s*(what|how|why|who|where)\s+(is|are|do|does|did|can|could)?\s*/i, "")
-    .replace(/^\s*introduction\s+to\s+/i, "")
-    .replace(/[?。!]+/g, " ")
-    .replace(/[^A-Za-z0-9 ]+/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-  const words = cleaned
-    .split(" ")
-    .filter((w) => w && !STOP_WORDS.has(w.toLowerCase()));
-  return words.slice(0, 5).join(" ");
-}
-
-/** Resolve the real images to embed, one per slide (or null = text-only). */
+/** Resolve the real images to embed, only for slides with explicit markers. */
 async function resolveSlideImages(
   slides: PptSlide[],
 ): Promise<SlideWithImage[]> {
-  const hasImageMarkers = slides.some((s) => (s.imageQuery ?? "").trim().length > 0);
-  const topicFallback = slides[0]?.isTitle ? slides[0].title.trim() : "";
   const usedUrls = new Set<string>();
 
   const images = await Promise.all(
     slides.map(async (slide) => {
+      // Priority 1: backend-resolved Wikimedia URL already in the content
       if (slide.imageUrl) {
         const dataUrl = await downloadImage(slide.imageUrl);
         if (dataUrl) {
@@ -160,16 +136,13 @@ async function resolveSlideImages(
           };
         }
       }
-      let query = (slide.imageQuery ?? "").trim();
-      if (!query && hasImageMarkers && !slide.isTitle) {
-        const title = slide.title.trim();
-        if (title.length >= 3 && title.length <= 60 && !NON_CONCEPT_TITLE.test(title)) {
-          query = titleToImageQuery(title);
-        }
-        if (!query) query = topicFallback;
+      // Priority 2: explicit <!-- IMG: --> query marker from Gemini
+      const query = (slide.imageQuery ?? "").trim();
+      if (query) {
+        return searchWikimediaImage(query, usedUrls);
       }
-      if (!query) return null;
-      return searchWikimediaImage(query, usedUrls);
+      // No explicit marker → text-only slide
+      return null;
     }),
   );
 

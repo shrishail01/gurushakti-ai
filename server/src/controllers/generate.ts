@@ -70,22 +70,8 @@ export async function generate(req: AuthRequest, res: Response, next: NextFuncti
     );
     const title = buildDocumentTitle(tool, parameters);
 
-    const prompt = [
-      rawPrompt,
-      "",
-      "---",
-      "CRITICAL VISUAL REQUIREMENT (MANDATORY):",
-      "You MUST automatically place relevant educational image placeholders in your content where a visual would be genuinely useful for student understanding (e.g. diagrams, illustrations, charts, timelines, scientific figures, maps, mathematical shapes).",
-      "For each section where a visual is useful, insert an image placeholder on its own line using this exact syntax:",
-      "![IMAGE_SEARCH: precise descriptive english search query](placeholder)",
-      "",
-      "Guidelines:",
-      "- In lesson plans/presentations: place them near complex concepts, steps, or activities.",
-      "- In worksheets/quizzes: place them only where a question requires visual analysis or identification.",
-      "- For PPT slides: place distinct, specific visual placeholders across different slides (do not repeat the same query on every slide).",
-      "- Keep queries descriptive and in English (e.g., 'photosynthesis process diagram for class 5', 'labelled plant cell illustration').",
-      "- Do not insert decorative or generic photos. If a section does not need an image, leave it text-only."
-    ].join("\n");
+    // Keep the user prompt clean — image rules live entirely in the system instruction.
+    const prompt = rawPrompt;
 
     const key = process.env.GEMINI_API_KEY;
     if (!key || key.trim() === "") {
@@ -119,15 +105,55 @@ export async function generate(req: AuthRequest, res: Response, next: NextFuncti
       "Never fabricate facts; use placeholders like [Name] and [Date] when details are unknown.",
       "Keep outputs immediately usable in a real classroom.",
       "",
-      "You MUST automatically place relevant educational image placeholders in your content where a visual would be genuinely useful for student understanding (e.g. diagrams, illustrations, charts, timelines, scientific figures, maps, mathematical shapes).",
-      "For each section where a visual is useful, insert an image placeholder on its own line using this exact syntax:",
-      "![IMAGE_SEARCH: precise descriptive english search query](placeholder)",
+      "═══ EDUCATIONAL VISUAL PLACEMENT RULES ═══",
       "",
-      "Instructions for specific document types:",
-      "- Lesson Plan: Place visuals to explain complex concepts, steps, or classroom activities.",
-      "- Worksheet / Question Paper / Quiz: Place visuals only where a question requires visual identification or analysis (e.g. \"Identify the parts of the leaf shown below:\", \"Solve for the area of the following shape:\"). Do not add generic decorative photos.",
-      "- Slide PPT Presentation: Place relevant visual placeholders across slides. Ensure each slide independently determines if a visual is useful and uses a distinct, specific query (do not repeat the same query on every slide).",
-      "- General: Place queries close to the corresponding text. Use clear, descriptive English queries (e.g. \"photosynthesis process diagram for class 5\", \"water cycle step by step drawing\") so the image search engine can resolve them properly. Do not place visuals in sections like introduction, objectives or assessments unless they are directly helpful. If no image is needed for a section, leave it text-only."
+      "You must intelligently decide, section-by-section, whether adding a visual improves student understanding.",
+      "Do NOT add decorative, generic, or random images. Do NOT add an image to every section.",
+      "Analyze each section individually and add a visual only if it genuinely helps.",
+      "",
+      "SYNTAX for all document types EXCEPT PPT:",
+      "  ![IMAGE_SEARCH: descriptive english search query](placeholder)",
+      "Place this marker on its own line immediately after the heading or sentence it illustrates.",
+      "Use clear, specific English queries — e.g. 'photosynthesis process diagram labelled', 'water cycle steps illustration', 'fraction circles halves thirds fourths', 'human digestive system diagram class 7'.",
+      "",
+      "RULES BY DOCUMENT TYPE:",
+      "",
+      "▸ Lesson Plan / Daily Teaching Plan / Micro Teaching Plan:",
+      "  - Add 2–5 images. Place them inside the 'Content Explanation' or 'Development' sections.",
+      "  - Add diagrams near the main concept being taught (e.g. plant diagram for photosynthesis lesson).",
+      "  - Add process visuals where steps are being explained.",
+      "  - Do NOT add images in Objectives, Evaluation, or Homework sections.",
+      "",
+      "▸ Worksheet / Assignment / Quiz / Blueprint:",
+      "  - Add images ONLY where a specific question requires a student to identify, label, or analyse a visual.",
+      "  - Example: place a leaf diagram image before 'Label the parts of the leaf shown below.'",
+      "  - Example: place a fraction bar image before 'Shade 3/4 of the bar below.'",
+      "  - Do NOT add generic decorative photos or images to text-only questions.",
+      "  - If no question needs a visual, use zero images.",
+      "",
+      "▸ Teaching Aid / Classroom Activity / Bloom's Taxonomy:",
+      "  - Add 2–4 images to illustrate the main concept, process, or activity.",
+      "  - Place diagrams or illustrations near the explanation of the teaching aid's content.",
+      "",
+      "▸ PPT Presentation (IMPORTANT — different syntax):",
+      "  - DO NOT use the ![IMAGE_SEARCH:] syntax for PPT.",
+      "  - Instead, for slides that need an image, add this marker on its own line INSIDE the slide content:",
+      "    <!-- IMG: descriptive english search query -->",
+      "  - Only add this marker to slides where a visual genuinely aids understanding (concept slides, process slides).",
+      "  - DO NOT add an image marker to: Title slide, Agenda/Contents slide, Summary/Recap slide, Thank You slide, Q&A slide, Homework slide.",
+      "  - Each slide with an image marker must use a DIFFERENT, SPECIFIC query — never repeat the same query.",
+      "  - For each slide: write MAX 4 concise bullet points. Keep each bullet SHORT (under 12 words). No long sentences.",
+      "  - Typical result: 40–60% of content slides have an image marker.",
+      "",
+      "▸ Rubric / Observation Report / Internship Report / Action Research / Annual Report:",
+      "  - Add 0–2 images only if the content references a specific observable concept or process.",
+      "  - Reports that are primarily text/table-based should use ZERO images.",
+      "",
+      "▸ Parent Message / School Notice / Other Communication:",
+      "  - Use ZERO images. These are text-only communications.",
+      "",
+      "▸ Income Engine results:",
+      "  - Use ZERO images.",
     ].join("\n");
 
     const geminiRes = await fetch(url, {
