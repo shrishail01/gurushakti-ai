@@ -37,13 +37,12 @@ import { cn } from "@/lib/utils";
 const NAV_ITEMS: {
   to: string;
   icon: LucideIcon;
-  key: "nav.dashboard" | "nav.toolkit" | "nav.income" | "nav.documents" | "nav.papers";
+  key: "nav.dashboard" | "nav.toolkit" | "nav.income" | "nav.documents";
 }[] = [
   { to: "/dashboard", icon: LayoutDashboard, key: "nav.dashboard" },
   { to: "/toolkit", icon: Wand2, key: "nav.toolkit" },
   { to: "/income", icon: TrendingUp, key: "nav.income" },
   { to: "/documents", icon: FolderOpen, key: "nav.documents" },
-  { to: "/papers", icon: GraduationCap, key: "nav.papers" },
 ];
 
 function initials(name?: string): string {
@@ -126,10 +125,6 @@ function UserMenu() {
         <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/dashboard")}>
           <LayoutDashboard className="size-4" />
           {t("nav.dashboard")}
-        </DropdownMenuItem>
-        <DropdownMenuItem className="cursor-pointer" onClick={() => navigate("/papers")}>
-          <GraduationCap className="size-4" />
-          {t("nav.papers")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem

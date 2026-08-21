@@ -26,7 +26,6 @@ const ToolGenerator = lazy(() => import("./pages/ToolGenerator.tsx"));
 const Documents = lazy(() => import("./pages/Documents.tsx"));
 const DocumentDetail = lazy(() => import("./pages/DocumentDetail.tsx"));
 const Income = lazy(() => import("./pages/Income.tsx"));
-const QuestionPapers = lazy(() => import("./pages/QuestionPapers.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
@@ -199,16 +198,6 @@ createRoot(document.getElementById("root")!).render(
                     <RequireAuth>
                       <AppShell>
                         <Income />
-                      </AppShell>
-                    </RequireAuth>
-                  }
-                />
-                <Route
-                  path="/papers"
-                  element={
-                    <RequireAuth>
-                      <AppShell>
-                        <QuestionPapers />
                       </AppShell>
                     </RequireAuth>
                   }
