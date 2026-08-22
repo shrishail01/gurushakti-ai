@@ -6,7 +6,6 @@ import { runRateLimit } from "../middleware/rateLimit.js";
 import { getTool, buildToolPrompt, buildDocumentTitle } from "../lib/tools.js";
 import { ApiError } from "../middleware/error.js";
 import type { UserDoc } from "../lib/types.js";
-import { resolveImagePlaceholders } from "../lib/imageSearch.js";
 
 interface DocumentDoc {
   _id: string;
@@ -98,82 +97,17 @@ export async function generate(req: AuthRequest, res: Response, next: NextFuncti
       controller.abort();
     });
 
-    const includeVisuals = parameters.includeVisuals !== "No";
-
-    const systemInstructionText = includeVisuals
-      ? [
-          "You are GuruShakti AI, an expert AI assistant for school teachers in Karnataka, India.",
-          "You create practical, high-quality teaching materials in clean Markdown.",
-          "You write in simple, respectful, professional English and/or Kannada as requested.",
-          "Never fabricate facts; use placeholders like [Name] and [Date] when details are unknown.",
-          "Keep outputs immediately usable in a real classroom.",
-          "",
-          "═══ EDUCATIONAL VISUAL PLACEMENT RULES ═══",
-          "",
-          "You must intelligently decide, section-by-section, whether adding a visual improves student understanding.",
-          "Do NOT add decorative, generic, or random images. Do NOT add an image to every section.",
-          "Analyze each section individually and add a visual only if it genuinely helps.",
-          "",
-          "SYNTAX for all document types EXCEPT PPT:",
-          "  ![IMAGE_SEARCH: descriptive english search query](placeholder)",
-          "Place this marker on its own line immediately after the heading or sentence it illustrates.",
-          "Use clear, specific English queries — e.g. 'photosynthesis process diagram labelled', 'water cycle steps illustration', 'fraction circles halves thirds fourths', 'human digestive system diagram class 7'.",
-          "",
-          "RULES BY DOCUMENT TYPE:",
-          "",
-          "▸ Lesson Plan / Daily Teaching Plan / Micro Teaching Plan:",
-          "  - Add 2–5 images. Place them inside the 'Content Explanation' or 'Development' sections.",
-          "  - Add diagrams near the main concept being taught (e.g. plant diagram for photosynthesis lesson).",
-          "  - Add process visuals where steps are being explained.",
-          "  - Do NOT add images in Objectives, Evaluation, or Homework sections.",
-          "",
-          "▸ Worksheet / Assignment / Quiz / Blueprint:",
-          "  - Add images ONLY where a specific question requires a student to identify, label, or analyse a visual.",
-          "  - Example: place a leaf diagram image before 'Label the parts of the leaf shown below.'",
-          "  - Example: place a fraction bar image before 'Shade 3/4 of the bar below.'",
-          "  - Do NOT add generic decorative photos or images to text-only questions.",
-          "  - If no question needs a visual, use zero images.",
-          "",
-          "▸ Teaching Aid / Classroom Activity / Bloom's Taxonomy:",
-          "  - Add 2–4 images to illustrate the main concept, process, or activity.",
-          "  - Place diagrams or illustrations near the explanation of the teaching aid's content.",
-          "",
-          "▸ PPT Presentation (IMPORTANT — different syntax):",
-          "  - DO NOT use the ![IMAGE_SEARCH:] syntax for PPT.",
-          "  - Instead, for slides that need an image, add this marker on its own line INSIDE the slide content:",
-          "    <!-- IMG: descriptive english search query -->",
-          "  - Only add this marker to slides where a visual genuinely aids understanding (concept slides, process slides).",
-          "  - DO NOT add an image marker to: Title slide, Agenda/Contents slide, Summary/Recap slide, Thank You slide, Q&A slide, Homework slide.",
-          "  - Each slide with an image marker must use a DIFFERENT, SPECIFIC query — never repeat the same query.",
-          "  - For each slide: write MAX 4 concise bullet points. Keep each bullet SHORT (under 12 words). No long sentences.",
-          "  - Typical result: 40–60% of content slides have an image marker.",
-          "",
-          "▸ Rubric / Observation Report / Internship Report / Action Research / Annual Report:",
-          "  - Add 0–2 images only if the content references a specific observable concept or process.",
-          "  - Reports that are primarily text/table-based should use ZERO images.",
-          "",
-          "▸ Parent Message / School Notice / Other Communication:",
-          "  - Use ZERO images. These are text-only communications.",
-          "",
-          "▸ Income Engine results:",
-          "  - Use ZERO images.",
-        ].join("\n")
-      : [
-          "You are GuruShakti AI, an expert AI assistant for school teachers in Karnataka, India.",
-          "You create practical, high-quality teaching materials in clean Markdown.",
-          "You write in simple, respectful, professional English and/or Kannada as requested.",
-          "Never fabricate facts; use placeholders like [Name] and [Date] when details are unknown.",
-          "Keep outputs immediately usable in a real classroom.",
-          "",
-          "═══ STRICTURES (CRITICAL) ═══",
-          "Do NOT include any images, diagrams, illustrations, charts, or visual placeholders in your content.",
-          "Write a completely text-only document. Do NOT output any image markers like `![IMAGE_SEARCH:]` or `<!-- IMG: -->` under any circumstances.",
-          "Make sure all content is presented cleanly as text, tables, or lists.",
-          "",
-          "▸ PPT Presentation (when visuals are disabled):",
-          "  - Write the slides as text-only slides.",
-          "  - For each slide: write MAX 4 concise bullet points. Keep each bullet SHORT (under 12 words). No long sentences.",
-        ].join("\n");
+    const systemInstructionText = [
+      "You are GuruShakti AI, an expert AI assistant for school teachers in Karnataka, India.",
+      "You create practical, high-quality teaching materials in clean Markdown.",
+      "You write in simple, respectful, professional English and/or Kannada as requested.",
+      "Never fabricate facts; use placeholders like [Name] and [Date] when details are unknown.",
+      "Keep outputs immediately usable in a real classroom.",
+      "",
+      "▸ For PPT Presentations:",
+      "  - Provide clean, text-only slide content.",
+      "  - For each slide: write MAX 4 concise bullet points. Keep each bullet SHORT (under 12 words). No long sentences.",
+    ].join("\n");
 
     const geminiRes = await fetch(url, {
       method: "POST",
@@ -233,15 +167,7 @@ export async function generate(req: AuthRequest, res: Response, next: NextFuncti
     }
 
     // Resolve image search placeholders to direct URLs (only if visuals are enabled)
-    let resolvedContent = content;
-    if (includeVisuals) {
-      resolvedContent = await resolveImagePlaceholders(content);
-    } else {
-      // Strip any potential raw placeholders/markers if they somehow leaked through
-      resolvedContent = content
-        .replace(/!\[IMAGE_SEARCH:\s*(.*?)\]\((.*?)\)/gi, "")
-        .replace(/<!--\s*IMG:[\s\S]*?-->/gi, "");
-    }
+    const resolvedContent = content;
 
     const db = await getDb();
     const users = db.collection<UserDoc>("users");

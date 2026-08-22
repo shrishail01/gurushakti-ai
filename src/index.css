@@ -276,34 +276,6 @@
   border-radius: 10px;
 }
 
-/* ---- AI-generated document images ---- */
-.md-img-figure {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 1.5em auto;
-  max-width: 520px;
-}
-.md-img {
-  max-width: 100%;
-  height: auto;
-  max-height: 340px;
-  object-fit: contain;
-  border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--muted);
-  display: block;
-}
-.md-img-caption {
-  margin-top: 0.45em;
-  font-size: 0.76rem;
-  color: var(--muted-foreground);
-  text-align: center;
-  line-height: 1.4;
-  max-width: 100%;
-}
-
-
 /* ---- Scrollbar ---- */
 ::-webkit-scrollbar {
   width: 8px;

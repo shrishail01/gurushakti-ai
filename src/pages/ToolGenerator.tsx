@@ -91,7 +91,6 @@ export default function ToolGenerator() {
         initial[field.name] = "";
       }
     }
-    initial["includeVisuals"] = "Yes";
     setParameters(initial);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [toolId]);
@@ -174,28 +173,14 @@ export default function ToolGenerator() {
   /** PPT Presentation tool only: rebuild the generated slides as a .pptx. */
   const isPptTool = tool?.id === "ppt-outline";
   const handleDownloadPpt = async () => {
-    if (!output || downloadingPpt || !doneInfo?.documentId) return;
+    if (!output || downloadingPpt) return;
     setDownloadingPpt(true);
     try {
       const { downloadPptxFromMarkdown } = await import("@/lib/pptx");
       const baseName =
         doneInfo?.title || `${tool?.title ?? "Presentation"} — ${parameters.topic ?? ""}`.trim();
-
-      // Fetch the saved document from MongoDB — the backend has already resolved
-      // all ![IMAGE_SEARCH:] placeholders to real Wikimedia URLs before saving.
-      // The raw streamed `output` still contains unresolved placeholders.
-      let pptContent = output;
-      try {
-        const savedDoc = await api.getDocument(doneInfo.documentId);
-        if (savedDoc.document.content) {
-          pptContent = savedDoc.document.content;
-        }
-      } catch {
-        // Fall back to raw output if fetch fails
-      }
-
       const { imageCount } = await downloadPptxFromMarkdown(
-        pptContent,
+        output,
         baseName || tool?.title || "Presentation",
       );
       toast.success(
@@ -320,18 +305,6 @@ export default function ToolGenerator() {
           </h2>
           <div className="space-y-4">
             {tool.fields.map(renderField)}
-
-            {renderField({
-              name: "includeVisuals",
-              label: lang === "kn" ? "ಸಂಬಂಧಿತ ಚಿತ್ರಗಳು/ದೃಶ್ಯಗಳನ್ನು ಸೇರಿಸಬೇಕೆ?" : "Include relevant images/visuals?",
-              labelKn: "ಸಂಬಂಧಿತ ಚಿತ್ರಗಳು/ದೃಶ್ಯಗಳನ್ನು ಸೇರಿಸಬೇಕೆ?",
-              type: "select",
-              required: true,
-              options: [
-                { value: "Yes", label: "Yes", labelKn: "ಹೌದು" },
-                { value: "No", label: "No", labelKn: "ಇಲ್ಲ" }
-              ]
-            })}
 
             <div className="space-y-1.5">
               <label className="text-sm font-medium">

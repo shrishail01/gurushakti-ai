@@ -20,7 +20,6 @@
  */
 
 import type PptxGenJS from "pptxgenjs";
-import { searchWikimediaImage, downloadImage, type WikimediaImage } from "./pptImages";
 
 type Slide = PptxGenJS.Slide;
 
@@ -35,7 +34,7 @@ export interface PptSlide {
 }
 
 interface SlideWithImage extends PptSlide {
-  image: WikimediaImage | null;
+  image: any | null;
 }
 
 const SLIDE_RE = /^##\s+slide\s*(\d+)\s*[:：]\s*(.*)$/i;
@@ -114,39 +113,11 @@ function sanitizeFileName(name: string): string {
 /* Image query fallback (when Gemini omitted a marker on one slide)    */
 /* ------------------------------------------------------------------ */
 
-/** Resolve the real images to embed, only for slides with explicit markers. */
+/** Resolve the real images to embed (visuals are disabled - always returns null). */
 async function resolveSlideImages(
   slides: PptSlide[],
 ): Promise<SlideWithImage[]> {
-  const usedUrls = new Set<string>();
-
-  const images = await Promise.all(
-    slides.map(async (slide) => {
-      // Priority 1: backend-resolved Wikimedia URL already in the content
-      if (slide.imageUrl) {
-        const dataUrl = await downloadImage(slide.imageUrl);
-        if (dataUrl) {
-          return {
-            dataUrl,
-            artist: "Wikimedia Commons",
-            license: "Creative Commons / Public Domain",
-            licenseUrl: "",
-            pageUrl: slide.imageUrl,
-            description: slide.title,
-          };
-        }
-      }
-      // Priority 2: explicit <!-- IMG: --> query marker from Gemini
-      const query = (slide.imageQuery ?? "").trim();
-      if (query) {
-        return searchWikimediaImage(query, usedUrls);
-      }
-      // No explicit marker → text-only slide
-      return null;
-    }),
-  );
-
-  return slides.map((slide, i) => ({ ...slide, image: images[i] }));
+  return slides.map((slide) => ({ ...slide, image: null }));
 }
 
 /* ------------------------------------------------------------------ */
@@ -229,7 +200,7 @@ export async function downloadPptxFromMarkdown(
 function addImageWithCaption(
   s: Slide,
   pptx: PptxGenJS,
-  image: WikimediaImage,
+  image: any,
   x: number,
   y: number,
   w: number,
