@@ -28,9 +28,6 @@ function getClientPromise(): Promise<MongoClient> {
       await db
         .collection("documents")
         .createIndex({ userId: 1, createdAt: -1 });
-      await db
-        .collection("questionPapers")
-        .createIndex({ subject: 1, semester: 1, year: -1 });
         
       return client;
     })();

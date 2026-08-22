@@ -8,7 +8,6 @@ import { register, login, logout, me, updateProfile } from "./controllers/auth.j
 import { listDocuments, getDocument, favoriteDocument, deleteDocument } from "./controllers/documents.js";
 import { generate } from "./controllers/generate.js";
 import { generateIncome } from "./controllers/income.js";
-import { listQuestionPapers } from "./controllers/questionPapers.js";
 
 dotenv.config();
 
@@ -70,8 +69,6 @@ app.get("/api/documents", requireAuth, listDocuments);
 app.get("/api/documents/:id", requireAuth, getDocument);
 app.patch("/api/documents/:id/favorite", requireAuth, favoriteDocument);
 app.delete("/api/documents/:id", requireAuth, deleteDocument);
-
-app.get("/api/question-papers", requireAuth, listQuestionPapers);
 
 // Health check endpoint
 app.get("/health", (_req, res) => {

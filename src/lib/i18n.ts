@@ -11,7 +11,6 @@ const en = {
   "nav.toolkit": "AI Toolkit",
   "nav.income": "Income Engine",
   "nav.documents": "My Documents",
-  "nav.papers": "B.Ed Question Papers",
 
   // Common
   "common.signIn": "Sign in",
@@ -146,29 +145,6 @@ const en = {
   "income.actionPlan": "7-Day Action Plan",
   "income.realityCheck": "Reality check",
   "income.estimatesNote": "All figures below are estimates based on your profile. Earnings are never guaranteed.",
-
-  // Question Papers
-  "papers.title": "B.Ed Past Question Papers",
-  "papers.subtitle": "Browse and search previous B.Ed question papers from Karnataka universities",
-  "papers.searchPlaceholder": "Search papers by title or subject…",
-  "papers.filterSubject": "Subject",
-  "papers.filterSemester": "Semester",
-  "papers.filterYear": "Year",
-  "papers.filterUniversity": "University",
-  "papers.allSubjects": "All subjects",
-  "papers.allSemesters": "All semesters",
-  "papers.allYears": "All years",
-  "papers.allUniversities": "All universities",
-  "papers.emptyTitle": "No question papers yet",
-  "papers.emptyHint": "This library is being built with authentic papers. Only official or verified papers will be listed here — check back soon.",
-  "papers.notFound": "No papers match your filters. Try clearing some filters.",
-  "papers.loading": "Loading question papers…",
-  "papers.view": "View paper",
-  "papers.verified": "Verified source",
-  "papers.semesterLabel": "Semester",
-  "papers.yearLabel": "Year",
-  "papers.universityLabel": "University",
-  "papers.clearFilters": "Clear filters",
 };
 
 const kn: Record<keyof typeof en, string> = {
@@ -176,7 +152,6 @@ const kn: Record<keyof typeof en, string> = {
   "nav.toolkit": "ಎಐ ಟೂಲ್ಕಿಟ್",
   "nav.income": "ಆದಾಯ ಎಂಜಿನ್",
   "nav.documents": "ನನ್ನ ದಾಖಲೆಗಳು",
-  "nav.papers": "ಬಿಎಡ್ ಪ್ರಶ್ನೆ ಪತ್ರಿಕೆಗಳು",
 
   "common.signIn": "ಸೈನ್ ಇನ್",
   "common.signUp": "ಖಾತೆ ರಚಿಸಿ",
@@ -303,28 +278,6 @@ const kn: Record<keyof typeof en, string> = {
   "income.actionPlan": "೭-ದಿನದ ಕಾರ್ಯಯೋಜನೆ",
   "income.realityCheck": "ವಾಸ್ತವ ಪರಿಶೀಲನೆ",
   "income.estimatesNote": "ಕೆಳಗಿನ ಎಲ್ಲಾ ಅಂಕಿಅಂಶಗಳು ನಿಮ್ಮ ಪ್ರೊಫೈಲ್ ಆಧರಿಸಿದ ಅಂದಾಜುಗಳು. ಗಳಿಕೆ ಎಂದಿಗೂ ಖಾತರಿಯಿಲ್ಲ.",
-
-  "papers.title": "ಬಿಎಡ್ ಹಿಂದಿನ ಪ್ರಶ್ನೆ ಪತ್ರಿಕೆಗಳು",
-  "papers.subtitle": "ಕರ್ನಾಟಕ ವಿಶ್ವವಿದ್ಯಾಲಯಗಳ ಹಿಂದಿನ ಬಿಎಡ್ ಪ್ರಶ್ನೆ ಪತ್ರಿಕೆಗಳನ್ನು ಹುಡುಕಿ",
-  "papers.searchPlaceholder": "ಶೀರ್ಷಿಕೆ ಅಥವಾ ವಿಷಯದಿಂದ ಹುಡುಕಿ…",
-  "papers.filterSubject": "ವಿಷಯ",
-  "papers.filterSemester": "ಸೆಮಿಸ್ಟರ್",
-  "papers.filterYear": "ವರ್ಷ",
-  "papers.filterUniversity": "ವಿಶ್ವವಿದ್ಯಾಲಯ",
-  "papers.allSubjects": "ಎಲ್ಲಾ ವಿಷಯಗಳು",
-  "papers.allSemesters": "ಎಲ್ಲಾ ಸೆಮಿಸ್ಟರ್ಗಳು",
-  "papers.allYears": "ಎಲ್ಲಾ ವರ್ಷಗಳು",
-  "papers.allUniversities": "ಎಲ್ಲಾ ವಿಶ್ವವಿದ್ಯಾಲಯಗಳು",
-  "papers.emptyTitle": "ಇನ್ನೂ ಪ್ರಶ್ನೆ ಪತ್ರಿಕೆಗಳಿಲ್ಲ",
-  "papers.emptyHint": "ಈ ಗ್ರಂಥಾಲಯವನ್ನು ಅಧಿಕೃತ ಪತ್ರಿಕೆಗಳೊಂದಿಗೆ ನಿರ್ಮಿಸಲಾಗುತ್ತಿದೆ. ಇಲ್ಲಿ ಅಧಿಕೃತ ಅಥವಾ ಪರಿಶೀಲಿಸಿದ ಪತ್ರಿಕೆಗಳನ್ನು ಮಾತ್ರ ಪಟ್ಟಿ ಮಾಡಲಾಗುತ್ತದೆ — ಶೀಘ್ರದಲ್ಲೇ ಮರಳಿ ನೋಡಿ.",
-  "papers.notFound": "ನಿಮ್ಮ ಫಿಲ್ಟರ್ಗಳಿಗೆ ಹೊಂದಿಕೆಯಾಗುವ ಪತ್ರಿಕೆಗಳಿಲ್ಲ. ಕೆಲವು ಫಿಲ್ಟರ್ಗಳನ್ನು ತೆರವುಗೊಳಿಸಿ ಪ್ರಯತ್ನಿಸಿ.",
-  "papers.loading": "ಪ್ರಶ್ನೆ ಪತ್ರಿಕೆಗಳನ್ನು ಲೋಡ್ ಮಾಡಲಾಗುತ್ತಿದೆ…",
-  "papers.view": "ಪತ್ರಿಕೆ ನೋಡಿ",
-  "papers.verified": "ಪರಿಶೀಲಿಸಿದ ಮೂಲ",
-  "papers.semesterLabel": "ಸೆಮಿಸ್ಟರ್",
-  "papers.yearLabel": "ವರ್ಷ",
-  "papers.universityLabel": "ವಿಶ್ವವಿದ್ಯಾಲಯ",
-  "papers.clearFilters": "ಫಿಲ್ಟರ್ಗಳನ್ನು ತೆರವುಗೊಳಿಸಿ",
 };
 
 export type TranslationKey = keyof typeof en;
