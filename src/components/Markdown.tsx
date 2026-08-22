@@ -33,6 +33,26 @@ export function Markdown({ content, className }: MarkdownProps) {
               <table {...props} />
             </div>
           ),
+          img: ({ src, alt }) => {
+            if (!src) return null;
+            return (
+              <figure className="md-img-figure">
+                <img
+                  src={src}
+                  alt={alt ?? ""}
+                  className="md-img"
+                  loading="lazy"
+                  onError={(e) => {
+                    const el = e.currentTarget.parentElement;
+                    if (el) el.style.display = "none";
+                  }}
+                />
+                {alt && (
+                  <figcaption className="md-img-caption">{alt}</figcaption>
+                )}
+              </figure>
+            );
+          },
         }}
       >
         {content}

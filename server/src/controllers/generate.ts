@@ -6,6 +6,7 @@ import { runRateLimit } from "../middleware/rateLimit.js";
 import { getTool, buildToolPrompt, buildDocumentTitle } from "../lib/tools.js";
 import { ApiError } from "../middleware/error.js";
 import type { UserDoc } from "../lib/types.js";
+import { resolveImagePlaceholders } from "../lib/imageSearch.js";
 
 interface DocumentDoc {
   _id: string;
@@ -114,12 +115,30 @@ export async function generate(req: AuthRequest, res: Response, next: NextFuncti
       controller.abort();
     });
 
+    const includeVisuals = toolId === "lesson-plan" && parameters.includeVisuals === "yes";
+
     const systemInstructionText = [
       "You are GuruShakti AI, an expert AI assistant for school teachers in Karnataka, India.",
       "You create practical, high-quality teaching materials in clean Markdown.",
       "You write in simple, respectful, professional English and/or Kannada as requested.",
       "Never fabricate facts; use placeholders like [Name] and [Date] when details are unknown.",
       "Keep outputs immediately usable in a real classroom.",
+      "",
+      ...(includeVisuals ? [
+        "═══ EDUCATIONAL VISUAL PLACEMENT RULES ═══",
+        "",
+        "You must intelligently decide, section-by-section, whether adding a visual improves student understanding.",
+        "Do NOT add decorative, generic, or random images. Do NOT add an image to every section.",
+        "Analyze each section of the Lesson Plan individually and add a visual only if it genuinely helps.",
+        "",
+        "SYNTAX:",
+        "  ![IMAGE_SEARCH: descriptive english search query](placeholder)",
+        "Place this marker on its own line immediately after the heading or content it illustrates.",
+        "Use clear, specific English queries — e.g. 'photosynthesis process diagram labelled', 'water cycle steps illustration', 'fraction circles halves thirds fourths', 'human digestive system diagram class 7'.",
+        "Only place visuals next to sections explaining concepts, processes, figures, or real-world objects.",
+        "Do NOT place visuals in learning objectives, materials lists, evaluation/assessment, homework, or recap sections.",
+        "You can place 0, 1, 2, or multiple visuals depending on the complexity of the lesson content."
+      ] : []),
       "",
       "▸ For PPT Presentations:",
       "  - Provide clean, text-only slide content.",
@@ -183,8 +202,8 @@ export async function generate(req: AuthRequest, res: Response, next: NextFuncti
       throw new ApiError(502, "Gemini returned an empty response. Please try again.");
     }
 
-    // Resolve image search placeholders to direct URLs (only if visuals are enabled)
-    const resolvedContent = content;
+    // Resolve image search placeholders to base64 embedded data URLs
+    const resolvedContent = includeVisuals ? await resolveImagePlaceholders(content) : content;
 
     const users = db.collection<UserDoc>("users");
     const dbUser = await users.findOne({ _id: req.userId });
