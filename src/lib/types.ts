@@ -32,6 +32,13 @@ export interface UserProfile {
   streakDays: number;
   createdAt: number;
   updatedAt: number;
+  plan?: "free" | "plus";
+  monthlyGenerationsUsed?: number;
+  usageMonth?: string;
+  subscriptionStatus?: "free" | "active" | "past_due" | "cancelled" | "expired";
+  razorpaySubscriptionId?: string;
+  currentPeriodStart?: number;
+  currentPeriodEnd?: number;
 }
 
 /** Mirrors the MongoDB `documents` collection document (API shape). */

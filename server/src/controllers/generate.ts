@@ -61,6 +61,23 @@ export async function generate(req: AuthRequest, res: Response, next: NextFuncti
       }
     }
 
+    const db = await getDb();
+    const user = req.user!;
+    const isPlus = user.plan === "plus" && user.subscriptionStatus === "active";
+    if (!isPlus) {
+      if ((user.monthlyGenerationsUsed ?? 0) >= 3) {
+        throw new ApiError(
+          403,
+          "You have used all 3 free AI generations for this month. Upgrade to GuruShakti Plus for unlimited generations."
+        );
+      }
+      await db.collection<UserDoc>("users").updateOne(
+        { _id: req.userId },
+        { $inc: { monthlyGenerationsUsed: 1 } }
+      );
+      req.user!.monthlyGenerationsUsed = (req.user!.monthlyGenerationsUsed ?? 0) + 1;
+    }
+
     const rawPrompt = buildToolPrompt(
       tool,
       parameters,
@@ -169,10 +186,9 @@ export async function generate(req: AuthRequest, res: Response, next: NextFuncti
     // Resolve image search placeholders to direct URLs (only if visuals are enabled)
     const resolvedContent = content;
 
-    const db = await getDb();
     const users = db.collection<UserDoc>("users");
-    const user = await users.findOne({ _id: req.userId });
-    if (!user) throw new ApiError(401, "This account no longer exists.");
+    const dbUser = await users.findOne({ _id: req.userId });
+    if (!dbUser) throw new ApiError(401, "This account no longer exists.");
 
     const documentId = newId();
     const createdAt = now();
@@ -194,9 +210,9 @@ export async function generate(req: AuthRequest, res: Response, next: NextFuncti
     const yesterday = new Date(Date.now() - 86_400_000)
       .toISOString()
       .slice(0, 10);
-    let streak = user.streakDays ?? 0;
-    if (user.lastActiveDate !== today) {
-      streak = user.lastActiveDate === yesterday ? streak + 1 : 1;
+    let streak = dbUser.streakDays ?? 0;
+    if (dbUser.lastActiveDate !== today) {
+      streak = dbUser.lastActiveDate === yesterday ? streak + 1 : 1;
     }
     await users.updateOne(
       { _id: req.userId },

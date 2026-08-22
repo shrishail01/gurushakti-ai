@@ -41,7 +41,7 @@ export default function ToolGenerator() {
   const { toolId } = useParams<{ toolId: string }>();
   const tool = toolId ? getTool(toolId) : undefined;
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, refresh } = useAuth();
   const { t, lang } = useLanguage();
 
   const [parameters, setParameters] = useState<Record<string, string>>({});
@@ -148,6 +148,7 @@ export default function ToolGenerator() {
         setDoneInfo(data);
         setStatus("done");
         toast.success(`${t("common.saved")} · ${t("common.saveTime")}`);
+        void refresh();
       },
       onError: (message) => {
         setErrorMsg(message);

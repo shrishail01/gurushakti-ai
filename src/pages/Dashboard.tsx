@@ -8,10 +8,12 @@ import {
   IndianRupee,
   Star,
   Wand2,
+  Loader2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
 import { useLanguage } from "@/lib/language";
 import { api } from "@/lib/api";
 import { TOOL_BY_ID } from "@/lib/tools";
@@ -46,13 +48,70 @@ function formatDate(ts: number, lang: "en" | "kn"): string {
   });
 }
 
+function loadRazorpayScript(): Promise<boolean> {
+  return new Promise((resolve) => {
+    if ((window as any).Razorpay) {
+      resolve(true);
+      return;
+    }
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
+
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, refresh } = useAuth();
   const { t, lang } = useLanguage();
   const navigate = useNavigate();
 
   const [docs, setDocs] = useState<DocumentItem[]>([]);
   const [docsLoading, setDocsLoading] = useState(true);
+  const [upgrading, setUpgrading] = useState(false);
+
+  const handleUpgrade = async () => {
+    setUpgrading(true);
+    try {
+      const loaded = await loadRazorpayScript();
+      if (!loaded) {
+        toast.error("Failed to load Razorpay payment gateway script.");
+        setUpgrading(false);
+        return;
+      }
+      const res = await api.createSubscription();
+      const options = {
+        key: res.keyId,
+        subscription_id: res.subscriptionId,
+        name: "GuruShakti AI",
+        description: "GuruShakti Plus Subscription",
+        handler: async function () {
+          toast.success(
+            lang === "kn"
+              ? "ಪಾವತಿ ಯಶಸ್ವಿಯಾಗಿದೆ! ನಿಮ್ಮ ಖಾತೆಯನ್ನು ನವೀಕರಿಸಲಾಗುತ್ತಿದೆ..."
+              : "Payment successful! Activating your plan..."
+          );
+          setTimeout(async () => {
+            await refresh();
+          }, 3500);
+        },
+        prefill: {
+          name: user?.name || "",
+          email: user?.email || "",
+        },
+        theme: {
+          color: "#0F766E",
+        },
+      };
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
+    } catch (err: any) {
+      toast.error(err.message || "Failed to upgrade.");
+    } finally {
+      setUpgrading(false);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -142,6 +201,81 @@ export default function Dashboard() {
           </motion.div>
         ))}
       </div>
+
+      {/* Subscription/Upgrade Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.1 }}
+        className="rounded-2xl border border-border/70 bg-card p-6"
+      >
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-1">
+            <h3 className="text-lg font-bold tracking-tight">
+              {lang === "kn" ? "ಚಂದಾದಾರಿಕೆ ವಿವರಗಳು" : "Subscription Details"}
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              {user?.plan === "plus" && user?.subscriptionStatus === "active" ? (
+                <>
+                  <span className="font-semibold text-teal-700">{lang === "kn" ? "ಗುರುಶಕ್ತಿ ಪ್ಲಸ್" : "GuruShakti Plus"}</span>
+                  {" • "}
+                  <span className="font-medium text-emerald-600">{lang === "kn" ? "ಸಕ್ರಿಯವಾಗಿದೆ" : "Active"}</span>
+                </>
+              ) : (
+                <>
+                  <span className="font-semibold text-muted-foreground">{lang === "kn" ? "ಉಚಿತ ಯೋಜನೆ" : "Free Plan"}</span>
+                </>
+              )}
+            </p>
+            <div className="mt-2 text-sm">
+              {user?.plan === "plus" && user?.subscriptionStatus === "active" ? (
+                <span className="text-teal-700 font-semibold">{lang === "kn" ? "ಅನ್ಲಿಮಿಟೆಡ್ ಜನರೇಷನ್ಗಳು" : "Unlimited generations"}</span>
+              ) : (
+                <span className="text-muted-foreground">
+                  <span className="font-bold text-foreground">
+                    {user?.monthlyGenerationsUsed ?? 0}
+                  </span>{" "}
+                  {lang === "kn" ? "ರ 3 ಜನರೇಷನ್ಗಳನ್ನು ಈ ತಿಂಗಳು ಬಳಸಲಾಗಿದೆ" : "of 3 generations used this month"}
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row md:items-center">
+            {/* Subscription plans comparison */}
+            <div className="flex gap-4 border border-border/70 bg-muted/30 p-4 rounded-xl text-xs">
+              <div className="space-y-1">
+                <p className="font-bold text-muted-foreground">{lang === "kn" ? "ಉಚಿತ" : "FREE"}</p>
+                <p className="font-semibold text-foreground">₹0/month</p>
+                <p className="text-muted-foreground">{lang === "kn" ? "೩ ಜನರೇಷನ್ಗಳು / ತಿಂಗಳು" : "3 AI generations/month"}</p>
+              </div>
+              <div className="border-r border-border" />
+              <div className="space-y-1">
+                <p className="font-bold text-teal-700">{lang === "kn" ? "ಗುರುಶಕ್ತಿ ಪ್ಲಸ್" : "GURUSHAKTI PLUS"}</p>
+                <p className="font-semibold text-foreground">₹149/month</p>
+                <p className="text-muted-foreground">{lang === "kn" ? "ಅನ್ಲಿಮಿಟೆಡ್ ಜನರೇಷನ್ಗಳು" : "Unlimited AI generations"}</p>
+              </div>
+            </div>
+
+            {!(user?.plan === "plus" && user?.subscriptionStatus === "active") && (
+              <Button
+                onClick={handleUpgrade}
+                disabled={upgrading}
+                className="cursor-pointer bg-brand-gradient text-white hover:opacity-90 font-semibold h-11 px-5 rounded-xl self-stretch sm:self-center"
+              >
+                {upgrading ? (
+                  <>
+                    <Loader2 className="mr-2 size-4 animate-spin" />
+                    {lang === "kn" ? "ಪ್ರಕ್ರಿಯೆಯಲ್ಲಿದೆ..." : "Upgrading..."}
+                  </>
+                ) : (
+                  lang === "kn" ? "ಗುರುಶಕ್ತಿ ಪ್ಲಸ್‌ಗೆ ಅಪ್‌ಗ್ರೇಡ್ ಮಾಡಿ" : "Upgrade to GuruShakti Plus"
+                )}
+              </Button>
+            )}
+          </div>
+        </div>
+      </motion.div>
 
       {/* Quick tools */}
       <div>

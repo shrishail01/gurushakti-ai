@@ -90,6 +90,10 @@ export async function register(req: AuthRequest, res: Response, next: NextFuncti
       documentsGenerated: 0,
       timeSavedMinutes: 0,
       streakDays: 0,
+      plan: "free",
+      monthlyGenerationsUsed: 0,
+      usageMonth: new Date().toISOString().slice(0, 7),
+      subscriptionStatus: "free",
       createdAt,
       updatedAt: createdAt,
     };

@@ -215,4 +215,19 @@ export const api = {
 
   income: () =>
     request<IncomeResponse>("/income", { method: "POST", body: "{}" }),
+
+  getSubscription: () =>
+    request<{
+      plan: "free" | "plus";
+      subscriptionStatus: "free" | "active" | "past_due" | "cancelled" | "expired";
+      monthlyGenerationsUsed: number;
+      usageMonth?: string;
+      currentPeriodEnd?: number;
+    }>("/subscription"),
+
+  createSubscription: () =>
+    request<{
+      subscriptionId: string;
+      keyId: string;
+    }>("/subscription/create", { method: "POST" }),
 };

@@ -8,6 +8,7 @@ import { register, login, logout, me, updateProfile } from "./controllers/auth.j
 import { listDocuments, getDocument, favoriteDocument, deleteDocument } from "./controllers/documents.js";
 import { generate } from "./controllers/generate.js";
 import { generateIncome } from "./controllers/income.js";
+import { getSubscription, createSubscription, handleWebhook } from "./controllers/subscription.js";
 
 dotenv.config();
 
@@ -53,7 +54,13 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(cookieParser());
-app.use(express.json());
+app.use(
+  express.json({
+    verify: (req: any, _res, buf) => {
+      req.rawBody = buf.toString();
+    },
+  })
+);
 
 // API Routes
 app.post("/api/auth/register", register);
@@ -64,6 +71,10 @@ app.patch("/api/auth/me", requireAuth, updateProfile);
 
 app.post("/api/generate", requireAuth, generate);
 app.post("/api/income", requireAuth, generateIncome);
+
+app.get("/api/subscription", requireAuth, getSubscription);
+app.post("/api/subscription/create", requireAuth, createSubscription);
+app.post("/api/webhooks/razorpay", handleWebhook);
 
 app.get("/api/documents", requireAuth, listDocuments);
 app.get("/api/documents/:id", requireAuth, getDocument);
